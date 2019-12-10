@@ -39,6 +39,8 @@ impl Default for BallConfig {
 pub struct PaddleConfig {
     pub width: f32,
     pub height: f32,
+    // Distance from the border of the arena to the paddle
+    pub margin: f32,
 }
 
 impl Default for PaddleConfig {
@@ -46,6 +48,7 @@ impl Default for PaddleConfig {
         PaddleConfig {
             width: 4.0,
             height: 16.0,
+            margin: 0.0,
         }
     }
 }

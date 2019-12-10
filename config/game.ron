@@ -9,5 +9,6 @@
     paddle: (
         width: 16.0,
         height: 4.0,
+        margin: 5.0,
     )
 )
