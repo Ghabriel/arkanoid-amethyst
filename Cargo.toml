@@ -1,0 +1,18 @@
+[package]
+name = "breakout-amethyst"
+version = "0.1.0"
+authors = ["Ghabriel <ghabriel.nunes@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+serde = "1.0"
+
+# [features]
+# empty = ["amethyst/empty"]
+# metal = ["amethyst/metal"]
+# vulkan = ["amethyst/vulkan"]
+
+[dependencies.amethyst]
+version = "0.13"
+features = ["sdl_controller", "vulkan"]
+

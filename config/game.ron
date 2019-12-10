@@ -1,0 +1,13 @@
+(
+    arena: (
+        width: 800.0,
+        height: 600.0,
+    ),
+    ball: (
+        radius: 2.0,
+    ),
+    paddle: (
+        width: 16.0,
+        height: 4.0,
+    )
+)
