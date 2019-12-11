@@ -7,6 +7,7 @@ use amethyst::{
 
 use crate::{
     config::GameConfig,
+    entities::ball::{initialise_ball, Ball},
     entities::paddle::{initialise_paddle, Paddle},
 };
 
@@ -30,14 +31,14 @@ pub fn load_sprite_sheet(world: &World) -> Handle<SpriteSheet> {
     let loader = world.read_resource::<Loader>();
 
     let texture_handle = loader.load(
-        "texture/pong_spritesheet.png",
+        "texture/arkanoid.png",
         ImageFormat::default(),
         (),
         &world.read_resource(),
     );
 
     loader.load(
-        "texture/pong_spritesheet.ron",
+        "texture/arkanoid.ron",
         SpriteSheetFormat(texture_handle),
         (),
         &world.read_resource(),
@@ -49,10 +50,12 @@ pub struct GameState;
 impl SimpleState for GameState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let mut world = data.world;
-        // let sprite_sheet = load_sprite_sheet(&world);
+        let sprite_sheet = load_sprite_sheet(&world);
 
+        world.register::<Ball>();
         world.register::<Paddle>();
-        initialise_paddle(&mut world/* , sprite_sheet */);
+        initialise_paddle(&mut world, sprite_sheet.clone());
+        initialise_ball(&mut world, sprite_sheet.clone());
         initialise_camera(&mut world);
     }
 }

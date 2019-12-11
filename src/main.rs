@@ -6,7 +6,7 @@ use amethyst::{
     core::transform::TransformBundle,
     prelude::*,
     renderer::{
-        plugins::{RenderDebugLines, RenderFlat2D, RenderToWindow},
+        plugins::{RenderFlat2D, RenderToWindow},
         types::DefaultBackend,
         RenderingBundle,
     },
@@ -37,7 +37,6 @@ fn main() -> amethyst::Result<()> {
                         .with_clear([0.0, 0.0, 0.0, 1.0]),
                 )
                 .with_plugin(RenderFlat2D::default())
-                .with_plugin(RenderDebugLines::default()),
         )?
         .with_bundle(TransformBundle::new())?;
 

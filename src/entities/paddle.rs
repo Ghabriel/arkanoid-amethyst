@@ -3,12 +3,7 @@ use amethyst::{
     core::Transform,
     ecs::{Component, DenseVecStorage},
     prelude::*,
-    renderer::{
-        debug_drawing::DebugLinesComponent,
-        palette::Srgba,
-        SpriteRender,
-        SpriteSheet,
-    },
+    renderer::{SpriteRender, SpriteSheet},
 };
 
 use crate::config::GameConfig;
@@ -24,10 +19,9 @@ impl Component for Paddle {
 
 pub fn initialise_paddle(
     world: &mut World,
-    // sprite_sheet: Handle<SpriteSheet>,
+    sprite_sheet: Handle<SpriteSheet>,
 ) {
-    // let (paddle, transform, sprite_render) = {
-    let (paddle, transform, debug_lines) = {
+    let (paddle, transform, sprite_render) = {
         let config = &world.read_resource::<GameConfig>();
 
         let paddle = Paddle {
@@ -40,35 +34,18 @@ pub fn initialise_paddle(
         let y = config.paddle.height / 2.0 + config.paddle.margin;
         transform.set_translation_xyz(x, y, 0.0);
 
-        // let sprite_render = SpriteRender {
-        //     sprite_sheet,
-        //     sprite_number: 0,
-        // };
+        let sprite_render = SpriteRender {
+            sprite_sheet,
+            sprite_number: 0,
+        };
 
-        // (paddle, transform, sprite_render)
-
-        let mut debug_lines = DebugLinesComponent::new();
-        debug_lines.add_rectangle_2d(
-            [
-                (config.arena.width - config.paddle.width) / 2.0,
-                config.paddle.margin
-            ].into(),
-            [
-                (config.arena.width + config.paddle.width) / 2.0,
-                config.paddle.height + config.paddle.margin
-            ].into(),
-            0.0,
-            Srgba::new(0.0, 1.0, 0.0, 1.0),
-        );
-
-        (paddle, transform, debug_lines)
+        (paddle, transform, sprite_render)
     };
 
     world
         .create_entity()
         .with(paddle)
         .with(transform)
-        .with(debug_lines)
-        // .with(sprite_render)
+        .with(sprite_render)
         .build();
 }
