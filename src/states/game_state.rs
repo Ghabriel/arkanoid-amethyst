@@ -7,8 +7,9 @@ use amethyst::{
 
 use crate::{
     config::GameConfig,
-    entities::ball::{initialise_ball, Ball},
-    entities::paddle::{initialise_paddle, Paddle},
+    entities::ball::{Ball, initialise_ball},
+    entities::brick::{Brick, initialise_bricks},
+    entities::paddle::{Paddle, initialise_paddle},
 };
 
 pub fn initialise_camera(world: &mut World) {
@@ -53,9 +54,11 @@ impl SimpleState for GameState {
         let sprite_sheet = load_sprite_sheet(&world);
 
         world.register::<Ball>();
+        world.register::<Brick>();
         world.register::<Paddle>();
-        initialise_paddle(&mut world, sprite_sheet.clone());
         initialise_ball(&mut world, sprite_sheet.clone());
+        initialise_bricks(&mut world, sprite_sheet.clone());
+        initialise_paddle(&mut world, sprite_sheet.clone());
         initialise_camera(&mut world);
     }
 }

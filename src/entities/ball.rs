@@ -1,6 +1,6 @@
 use amethyst::{
-    assets::{Handle},
-    core::{Transform},
+    assets::Handle,
+    core::Transform,
     ecs::{Component, DenseVecStorage},
     prelude::*,
     renderer::{SpriteRender, SpriteSheet},
