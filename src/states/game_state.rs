@@ -49,10 +49,10 @@ pub struct GameState;
 impl SimpleState for GameState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let mut world = data.world;
-        let sprite_sheet = load_sprite_sheet(&world);
+        // let sprite_sheet = load_sprite_sheet(&world);
 
         world.register::<Paddle>();
-        initialise_paddle(&mut world, sprite_sheet);
+        initialise_paddle(&mut world/* , sprite_sheet */);
         initialise_camera(&mut world);
     }
 }

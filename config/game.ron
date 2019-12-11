@@ -7,8 +7,8 @@
         radius: 2.0,
     ),
     paddle: (
-        width: 16.0,
-        height: 4.0,
-        margin: 5.0,
+        width: 170.0,
+        height: 8.0,
+        margin: 10.0,
     )
 )
