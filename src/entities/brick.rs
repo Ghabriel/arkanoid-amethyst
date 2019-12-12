@@ -1,11 +1,25 @@
 use amethyst::{
-    assets::Handle,
+    assets::{Handle, PrefabData, ProgressCounter},
     core::Transform,
-    ecs::{Component, DenseVecStorage},
+    derive::PrefabData,
+    ecs::{Component, DenseVecStorage, Entity, WriteStorage},
+    Error,
     prelude::*,
     renderer::{SpriteRender, SpriteSheet},
 };
 
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize, PrefabData)]
+pub struct BrickPrefab {
+    brick: Brick,
+    transform: Transform,
+    // sprite_render: SpriteRender,
+}
+
+#[derive(Clone, Deserialize, Serialize, PrefabData)]
+#[prefab(Component)]
+#[serde(deny_unknown_fields)]
 pub struct Brick {
     pub width: f32,
     pub height: f32,
