@@ -1,6 +1,6 @@
 use amethyst::{
     core::Transform,
-    ecs::{Join, Read, ReadStorage, System, SystemData, WriteStorage},
+    ecs::{Join, Read, ReadStorage, System, WriteStorage},
     input::{InputHandler, StringBindings},
 };
 
@@ -27,8 +27,8 @@ impl<'a> System<'a> for PaddleMovementSystem {
 
             transform.set_translation_x(
                 (paddle_x + scaled_movement)
-                    .min(config.arena.width - config.paddle.width / 2.0)
-                    .max(config.paddle.width / 2.0)
+                    .min(config.arena.width - paddle.width / 2.0)
+                    .max(paddle.width / 2.0)
             );
         }
     }

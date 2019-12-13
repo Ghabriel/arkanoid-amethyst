@@ -1,7 +1,6 @@
 use amethyst::{
     core::{Time, Transform},
     ecs::{Join, Read, ReadStorage, System, WriteStorage},
-    // prelude::*,
 };
 
 use crate::entities::ball::Ball;

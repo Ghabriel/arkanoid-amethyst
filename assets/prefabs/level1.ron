@@ -4,8 +4,8 @@ Prefab(
         PrefabEntity(
             data: BrickPrefab(
                 brick: Brick(
-                    width: 50.0,
-                    height: 20.0,
+                    width: 55.0,
+                    height: 25.0,
                 ),
                 transform: (
                     translation: (80.0, 550.0, 0.0),
@@ -15,6 +15,21 @@ Prefab(
                 //     sprite_number: 2,
                 // ),
             )
-        )
+        ),
+        PrefabEntity(
+            data: BrickPrefab(
+                brick: Brick(
+                    width: 60.0,
+                    height: 30.0,
+                ),
+                transform: (
+                    translation: (160.0, 550.0, 0.0),
+                ),
+                // sprite_render: SpriteRender(
+                //     sprite_sheet: Asset(File("texture/arkanoid.ron")),
+                //     sprite_number: 2,
+                // ),
+            )
+        ),
     ]
 )

@@ -67,23 +67,6 @@ impl GameState {
             prefab_handle: None,
         }
     }
-
-    // Displays the contents of the loaded prefab.
-    fn display_loaded_prefab(&self, world: &World) {
-        let prefab_assets = world.read_resource::<AssetStorage<Prefab<BrickPrefab>>>();
-        if let Some(handle) = self.prefab_handle.as_ref() {
-            let prefab = prefab_assets
-                .get(handle)
-                .expect("Expected prefab to be loaded.");
-
-            println!("Prefab");
-            println!("======");
-            prefab
-                .entities()
-                .for_each(|entity| println!("{:#?}", entity));
-            println!();
-        }
-    }
 }
 
 impl SimpleState for GameState {
@@ -112,16 +95,5 @@ impl SimpleState for GameState {
             .build();
 
         self.prefab_handle = Some(prefab_handle);
-    }
-
-    fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_ >>) -> SimpleTrans {
-        // if self.progress_counter.is_complete() {
-        //     self.display_loaded_prefab(&mut data.world);
-        //     Trans::Quit
-        // } else {
-        //     // println!("Loading...");
-        //     Trans::None
-        // }
-        Trans::None
     }
 }
