@@ -1,6 +1,15 @@
 use amethyst::{
-    assets::{Handle, Loader},
-    core::Transform,
+    assets::{
+        AssetStorage,
+        Handle,
+        Loader,
+        Prefab,
+        PrefabLoader,
+        ProgressCounter,
+        RonFormat,
+    },
+    core::{Parent, Transform},
+    ecs::prelude::*,
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteSheet, SpriteSheetFormat},
 };
@@ -8,7 +17,7 @@ use amethyst::{
 use crate::{
     config::GameConfig,
     entities::ball::{Ball, initialise_ball},
-    entities::brick::{Brick, initialise_bricks},
+    entities::brick::{Brick, BrickPrefab, initialise_bricks},
     entities::paddle::{Paddle, initialise_paddle},
 };
 
@@ -46,7 +55,36 @@ pub fn load_sprite_sheet(world: &World) -> Handle<SpriteSheet> {
     )
 }
 
-pub struct GameState;
+pub struct GameState {
+    pub progress_counter: ProgressCounter,
+    pub prefab_handle: Option<Handle<Prefab<BrickPrefab>>>,
+}
+
+impl GameState {
+    pub fn new() -> GameState {
+        GameState {
+            progress_counter: ProgressCounter::new(),
+            prefab_handle: None,
+        }
+    }
+
+    // Displays the contents of the loaded prefab.
+    fn display_loaded_prefab(&self, world: &World) {
+        let prefab_assets = world.read_resource::<AssetStorage<Prefab<BrickPrefab>>>();
+        if let Some(handle) = self.prefab_handle.as_ref() {
+            let prefab = prefab_assets
+                .get(handle)
+                .expect("Expected prefab to be loaded.");
+
+            println!("Prefab");
+            println!("======");
+            prefab
+                .entities()
+                .for_each(|entity| println!("{:#?}", entity));
+            println!();
+        }
+    }
+}
 
 impl SimpleState for GameState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
@@ -57,8 +95,33 @@ impl SimpleState for GameState {
         world.register::<Brick>();
         world.register::<Paddle>();
         initialise_ball(&mut world, sprite_sheet.clone());
-        initialise_bricks(&mut world, sprite_sheet.clone());
+        // initialise_bricks(&mut world, sprite_sheet.clone());
         initialise_paddle(&mut world, sprite_sheet.clone());
         initialise_camera(&mut world);
+
+        let prefab_handle = world.exec(|loader: PrefabLoader<'_, BrickPrefab>| {
+            loader.load(
+                "prefabs/level1.ron",
+                RonFormat,
+                &mut self.progress_counter,
+            )
+        });
+
+        world
+            .create_entity()
+            .with(prefab_handle.clone())
+            .build();
+
+        self.prefab_handle = Some(prefab_handle);
+    }
+
+    fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_ >>) -> SimpleTrans {
+        if self.progress_counter.is_complete() {
+            self.display_loaded_prefab(&mut data.world);
+            Trans::Quit
+        } else {
+            // println!("Loading...");
+            Trans::None
+        }
     }
 }

@@ -10,14 +10,14 @@ use amethyst::{
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, PrefabData)]
+#[derive(Debug, Deserialize, Serialize, PrefabData)]
 pub struct BrickPrefab {
     brick: Brick,
     transform: Transform,
     // sprite_render: SpriteRender,
 }
 
-#[derive(Clone, Deserialize, Serialize, PrefabData)]
+#[derive(Clone, Debug, Deserialize, Serialize, PrefabData)]
 #[prefab(Component)]
 #[serde(deny_unknown_fields)]
 pub struct Brick {

@@ -3,6 +3,7 @@ mod entities;
 mod states;
 
 use amethyst::{
+    assets::PrefabLoaderSystemDesc,
     core::transform::TransformBundle,
     prelude::*,
     renderer::{
@@ -15,6 +16,7 @@ use amethyst::{
 
 use crate::{
     config::GameConfig,
+    entities::brick::BrickPrefab,
     states::GameState,
 };
 
@@ -38,10 +40,15 @@ fn main() -> amethyst::Result<()> {
                 )
                 .with_plugin(RenderFlat2D::default())
         )?
-        .with_bundle(TransformBundle::new())?;
+        .with_bundle(TransformBundle::new())?
+        .with_system_desc(
+            PrefabLoaderSystemDesc::<BrickPrefab>::default(),
+            "prefab_loader",
+            &[],
+        );
 
     let assets_path = app_root.join("assets");
-    Application::build(assets_path, GameState)?
+    Application::build(assets_path, GameState::new())?
         .with_resource(game_config)
         .build(game_data)?
         .run();

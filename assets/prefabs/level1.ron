@@ -1,3 +1,4 @@
+#![enable(implicit_some)]
 Prefab(
     entities: [
         PrefabEntity(
@@ -6,7 +7,9 @@ Prefab(
                     width: 50.0,
                     height: 20.0,
                 ),
-                transform: (80.0, 550.0, 0.0),
+                transform: (
+                    translation: (80.0, 550.0, 0.0),
+                ),
                 // sprite_render: SpriteRender(
                 //     sprite_sheet: Asset(File("texture/arkanoid.ron")),
                 //     sprite_number: 2,
