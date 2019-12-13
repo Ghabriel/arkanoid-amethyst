@@ -1,6 +1,7 @@
 mod config;
 mod entities;
 mod states;
+mod systems;
 
 use amethyst::{
     assets::PrefabLoaderSystemDesc,
@@ -18,6 +19,7 @@ use crate::{
     config::GameConfig,
     entities::brick::BrickPrefab,
     states::GameState,
+    systems::BallMovementSystem,
 };
 
 fn main() -> amethyst::Result<()> {
@@ -45,7 +47,8 @@ fn main() -> amethyst::Result<()> {
             PrefabLoaderSystemDesc::<BrickPrefab>::default(),
             "prefab_loader",
             &[],
-        );
+        )
+        .with(BallMovementSystem, "ball_movement_system", &[]);
 
     let assets_path = app_root.join("assets");
     Application::build(assets_path, GameState::new())?

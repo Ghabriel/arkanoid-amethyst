@@ -8,7 +8,7 @@ use amethyst::{
         ProgressCounter,
         RonFormat,
     },
-    core::{Parent, Transform},
+    core::Transform,
     ecs::prelude::*,
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteSheet, SpriteSheetFormat},
@@ -17,7 +17,7 @@ use amethyst::{
 use crate::{
     config::GameConfig,
     entities::ball::{Ball, initialise_ball},
-    entities::brick::{Brick, BrickPrefab, initialise_bricks},
+    entities::brick::{Brick, BrickPrefab},
     entities::paddle::{Paddle, initialise_paddle},
 };
 
@@ -95,7 +95,6 @@ impl SimpleState for GameState {
         world.register::<Brick>();
         world.register::<Paddle>();
         initialise_ball(&mut world, sprite_sheet.clone());
-        // initialise_bricks(&mut world, sprite_sheet.clone());
         initialise_paddle(&mut world, sprite_sheet.clone());
         initialise_camera(&mut world);
 
@@ -116,12 +115,13 @@ impl SimpleState for GameState {
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_ >>) -> SimpleTrans {
-        if self.progress_counter.is_complete() {
-            self.display_loaded_prefab(&mut data.world);
-            Trans::Quit
-        } else {
-            // println!("Loading...");
-            Trans::None
-        }
+        // if self.progress_counter.is_complete() {
+        //     self.display_loaded_prefab(&mut data.world);
+        //     Trans::Quit
+        // } else {
+        //     // println!("Loading...");
+        //     Trans::None
+        // }
+        Trans::None
     }
 }

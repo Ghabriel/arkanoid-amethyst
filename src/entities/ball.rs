@@ -23,7 +23,7 @@ pub fn initialise_ball(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
 
         let ball = Ball {
             radius: config.ball.radius,
-            velocity: [60.0, 30.0],
+            velocity: [120.0, 40.0],
         };
 
         let mut transform = Transform::default();
