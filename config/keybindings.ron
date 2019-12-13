@@ -1,0 +1,12 @@
+(
+    axes: {
+        "paddle": Emulated(pos: Key(Right), neg: Key(Left)),
+        // "paddle": Controller(
+        //     controller_id: 0,
+        //     axis: LeftX,
+        //     invert: false,
+        //     dead_zone: 0.2,
+        // ),
+    },
+    actions: {},
+)

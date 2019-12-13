@@ -6,6 +6,7 @@ mod systems;
 use amethyst::{
     assets::PrefabLoaderSystemDesc,
     core::transform::TransformBundle,
+    input::{InputBundle, StringBindings},
     prelude::*,
     renderer::{
         plugins::{RenderFlat2D, RenderToWindow},
@@ -19,7 +20,7 @@ use crate::{
     config::GameConfig,
     entities::brick::BrickPrefab,
     states::GameState,
-    systems::BallMovementSystem,
+    systems::{BallMovementSystem, PaddleMovementSystem},
 };
 
 fn main() -> amethyst::Result<()> {
@@ -28,6 +29,7 @@ fn main() -> amethyst::Result<()> {
     let app_root = application_root_dir()?;
 
     let display_config_path = app_root.join("config").join("display.ron");
+    let keybindings_config_path = app_root.join("config").join("keybindings.ron");
 
     let game_config = GameConfig::load(
         app_root.join("config").join("game.ron")
@@ -43,12 +45,17 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default())
         )?
         .with_bundle(TransformBundle::new())?
+        .with_bundle(
+            InputBundle::<StringBindings>::new()
+                .with_bindings_from_file(keybindings_config_path)?
+        )?
         .with_system_desc(
             PrefabLoaderSystemDesc::<BrickPrefab>::default(),
             "prefab_loader",
             &[],
         )
-        .with(BallMovementSystem, "ball_movement_system", &[]);
+        .with(BallMovementSystem, "ball_movement_system", &[])
+        .with(PaddleMovementSystem, "paddle_movement_system", &["input_system"]);
 
     let assets_path = app_root.join("assets");
     Application::build(assets_path, GameState::new())?
