@@ -10,10 +10,6 @@ Prefab(
                 transform: (
                     translation: (80.0, 550.0, 0.0),
                 ),
-                // sprite_render: SpriteRender(
-                //     sprite_sheet: Asset(File("texture/arkanoid.ron")),
-                //     sprite_number: 2,
-                // ),
             )
         ),
         PrefabEntity(
@@ -25,10 +21,6 @@ Prefab(
                 transform: (
                     translation: (160.0, 550.0, 0.0),
                 ),
-                // sprite_render: SpriteRender(
-                //     sprite_sheet: Asset(File("texture/arkanoid.ron")),
-                //     sprite_number: 2,
-                // ),
             )
         ),
     ]

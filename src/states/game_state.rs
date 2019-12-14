@@ -11,7 +11,7 @@ use amethyst::{
     core::Transform,
     ecs::prelude::*,
     prelude::*,
-    renderer::{Camera, ImageFormat, SpriteSheet, SpriteSheetFormat},
+    renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat},
 };
 
 use crate::{
@@ -56,6 +56,7 @@ pub fn load_sprite_sheet(world: &World) -> Handle<SpriteSheet> {
 }
 
 pub struct GameState {
+    pub sprite_sheet: Option<Handle<SpriteSheet>>,
     pub progress_counter: ProgressCounter,
     pub prefab_handle: Option<Handle<Prefab<BrickPrefab>>>,
 }
@@ -63,6 +64,7 @@ pub struct GameState {
 impl GameState {
     pub fn new() -> GameState {
         GameState {
+            sprite_sheet: None,
             progress_counter: ProgressCounter::new(),
             prefab_handle: None,
         }
@@ -94,6 +96,32 @@ impl SimpleState for GameState {
             .with(prefab_handle.clone())
             .build();
 
+        self.sprite_sheet = Some(sprite_sheet);
         self.prefab_handle = Some(prefab_handle);
+    }
+
+    fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+        if self.progress_counter.is_complete() {
+            data.world.exec(
+                |(entities, bricks, mut sprite_renders): (
+                    Entities,
+                    ReadStorage<Brick>,
+                    WriteStorage<SpriteRender>,
+                )| {
+                    for (entity, brick) in (&entities, &bricks).join() {
+                        let sprite_render = SpriteRender {
+                            sprite_sheet: self.sprite_sheet.clone().unwrap(),
+                            sprite_number: 2,
+                        };
+
+                        sprite_renders
+                            .insert(entity, sprite_render)
+                            .unwrap();
+                    }
+                },
+            );
+        }
+
+        Trans::None
     }
 }
