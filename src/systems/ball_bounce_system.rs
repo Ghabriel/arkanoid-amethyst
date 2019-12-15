@@ -32,88 +32,117 @@ impl<'a> System<'a> for BallBounceSystem {
     );
 
     fn run(&mut self, (mut balls, transforms, bricks, paddles, entities, config): Self::SystemData) {
-        for (ball, transform) in (&mut balls, &transforms).join() {
-            let ball_x = transform.translation().x;
-            let ball_y = transform.translation().y;
+        for (mut ball, transform) in (&mut balls, &transforms).join() {
+            Self::handle_brick_collisions(&mut ball, &transform, &transforms, &bricks, &entities);
+            Self::handle_paddle_collisions(&mut ball, &transform, &transforms, &paddles);
+            Self::handle_wall_collisions(&mut ball, &transform, &config);
+        }
+    }
+}
 
-            if (ball_x <= ball.radius && ball.velocity[0] < 0.0)
-                || (ball_x >= config.arena.width - ball.radius && ball.velocity[0] > 0.0)
-            {
+impl BallBounceSystem {
+    fn handle_wall_collisions(ball: &mut Ball, transform: &Transform, config: &GameConfig) {
+        let ball_x = transform.translation().x;
+        let ball_y = transform.translation().y;
+
+        if (ball_x <= ball.radius && ball.velocity[0] < 0.0)
+            || (ball_x >= config.arena.width - ball.radius && ball.velocity[0] > 0.0)
+        {
+            ball.velocity[0] = -ball.velocity[0];
+        }
+
+        if ball_y >= config.arena.height - ball.radius && ball.velocity[1] > 0.0 {
+            ball.velocity[1] = -ball.velocity[1];
+        }
+
+        if ball_y <= ball.radius && ball.velocity[1] < 0.0 {
+            println!("SCORE");
+        }
+    }
+
+    fn handle_brick_collisions(
+        ball: &mut Ball,
+        transform: &Transform,
+        transforms: &ReadStorage<Transform>,
+        bricks: &ReadStorage<Brick>,
+        entities: &Read<EntitiesRes>,
+    ) {
+        let ball_x = transform.translation().x;
+        let ball_y = transform.translation().y;
+
+        for (entity, brick, transform) in (entities, bricks, transforms).join() {
+            let brick_x = transform.translation().x;
+            let brick_y = transform.translation().y;
+            let x_left = brick_x - 0.5 * brick.width;
+            let x_right = brick_x + 0.5 * brick.width;
+            let y_bottom = brick_y - 0.5 * brick.height;
+            let y_top = brick_y + 0.5 * brick.height;
+
+            if circle_line_segment_collision(
+                (ball_x, ball_y),
+                ball.radius,
+                (x_left, y_top),
+                (x_left, y_bottom),
+            ) && ball.velocity[0] > 0.0 {
                 ball.velocity[0] = -ball.velocity[0];
+                entities.delete(entity).expect("Failed to delete brick");
             }
 
-            if ball_y >= config.arena.height - ball.radius && ball.velocity[1] > 0.0 {
+            if circle_line_segment_collision(
+                (ball_x, ball_y),
+                ball.radius,
+                (x_left, y_top),
+                (x_right, y_top),
+            ) && ball.velocity[1] < 0.0 {
                 ball.velocity[1] = -ball.velocity[1];
+                entities.delete(entity).expect("Failed to delete brick");
             }
 
-            if ball_y <= ball.radius && ball.velocity[1] < 0.0 {
-                println!("SCORE");
+            if circle_line_segment_collision(
+                (ball_x, ball_y),
+                ball.radius,
+                (x_left, y_bottom),
+                (x_right, y_bottom),
+            ) && ball.velocity[1] > 0.0 {
+                ball.velocity[1] = -ball.velocity[1];
+                entities.delete(entity).expect("Failed to delete brick");
             }
 
-            for (entity, brick, transform) in (&entities, &bricks, &transforms).join() {
-                let brick_x = transform.translation().x;
-                let brick_y = transform.translation().y;
-                let x_left = brick_x - 0.5 * brick.width;
-                let x_right = brick_x + 0.5 * brick.width;
-                let y_bottom = brick_y - 0.5 * brick.height;
-                let y_top = brick_y + 0.5 * brick.height;
+            if circle_line_segment_collision(
+                (ball_x, ball_y),
+                ball.radius,
+                (x_right, y_top),
+                (x_right, y_bottom),
+            ) && ball.velocity[0] < 0.0 {
+                ball.velocity[0] = -ball.velocity[0];
+                entities.delete(entity).expect("Failed to delete brick");
+            }
+        }
+    }
 
-                if circle_line_segment_collision(
-                    (ball_x, ball_y),
-                    ball.radius,
-                    (x_left, y_top),
-                    (x_left, y_bottom),
-                ) && ball.velocity[0] > 0.0 {
-                    ball.velocity[0] = -ball.velocity[0];
-                    entities.delete(entity).expect("Failed to delete brick");
-                }
+    fn handle_paddle_collisions(
+        ball: &mut Ball,
+        transform: &Transform,
+        transforms: &ReadStorage<Transform>,
+        paddles: &ReadStorage<Paddle>,
+    ) {
+        let ball_x = transform.translation().x;
+        let ball_y = transform.translation().y;
 
-                if circle_line_segment_collision(
-                    (ball_x, ball_y),
-                    ball.radius,
-                    (x_left, y_top),
-                    (x_right, y_top),
-                ) && ball.velocity[1] < 0.0 {
+        for (paddle, transform) in (paddles, transforms).join() {
+            let paddle_x = transform.translation().x;
+            let paddle_y = transform.translation().y;
+
+            if point_in_rect(
+                ball_x,
+                ball_y,
+                paddle_x - 0.5 * paddle.width - ball.radius,
+                paddle_y - 0.5 * paddle.height - ball.radius,
+                paddle_x + 0.5 * paddle.width + ball.radius,
+                paddle_y + 0.5 * paddle.height + ball.radius,
+            ) {
+                if ball.velocity[1] < 0.0 {
                     ball.velocity[1] = -ball.velocity[1];
-                    entities.delete(entity).expect("Failed to delete brick");
-                }
-
-                if circle_line_segment_collision(
-                    (ball_x, ball_y),
-                    ball.radius,
-                    (x_left, y_bottom),
-                    (x_right, y_bottom),
-                ) && ball.velocity[1] > 0.0 {
-                    ball.velocity[1] = -ball.velocity[1];
-                    entities.delete(entity).expect("Failed to delete brick");
-                }
-
-                if circle_line_segment_collision(
-                    (ball_x, ball_y),
-                    ball.radius,
-                    (x_right, y_top),
-                    (x_right, y_bottom),
-                ) && ball.velocity[0] < 0.0 {
-                    ball.velocity[0] = -ball.velocity[0];
-                    entities.delete(entity).expect("Failed to delete brick");
-                }
-            }
-
-            for (paddle, transform) in (&paddles, &transforms).join() {
-                let paddle_x = transform.translation().x;
-                let paddle_y = transform.translation().y;
-
-                if point_in_rect(
-                    ball_x,
-                    ball_y,
-                    paddle_x - 0.5 * paddle.width - ball.radius,
-                    paddle_y - 0.5 * paddle.height - ball.radius,
-                    paddle_x + 0.5 * paddle.width + ball.radius,
-                    paddle_y + 0.5 * paddle.height + ball.radius,
-                ) {
-                    if ball.velocity[1] < 0.0 {
-                        ball.velocity[1] = -ball.velocity[1];
-                    }
                 }
             }
         }
