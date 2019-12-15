@@ -1,6 +1,13 @@
 use amethyst::{
     core::Transform,
-    ecs::{Join, Read, ReadStorage, System, WriteStorage},
+    ecs::{
+        Join,
+        Read,
+        ReadStorage,
+        System,
+        world::EntitiesRes,
+        WriteStorage,
+    },
 };
 
 use crate::{
@@ -20,10 +27,11 @@ impl<'a> System<'a> for BallBounceSystem {
         ReadStorage<'a, Transform>,
         ReadStorage<'a, Brick>,
         ReadStorage<'a, Paddle>,
+        Read<'a, EntitiesRes>,
         Read<'a, GameConfig>,
     );
 
-    fn run(&mut self, (mut balls, transforms, bricks, paddles, config): Self::SystemData) {
+    fn run(&mut self, (mut balls, transforms, bricks, paddles, entities, config): Self::SystemData) {
         for (ball, transform) in (&mut balls, &transforms).join() {
             let ball_x = transform.translation().x;
             let ball_y = transform.translation().y;
@@ -42,7 +50,7 @@ impl<'a> System<'a> for BallBounceSystem {
                 println!("SCORE");
             }
 
-            for (brick, transform) in (&bricks, &transforms).join() {
+            for (entity, brick, transform) in (&entities, &bricks, &transforms).join() {
                 let brick_x = transform.translation().x;
                 let brick_y = transform.translation().y;
                 let x_left = brick_x - 0.5 * brick.width;
@@ -57,6 +65,7 @@ impl<'a> System<'a> for BallBounceSystem {
                     (x_left, y_bottom),
                 ) && ball.velocity[0] > 0.0 {
                     ball.velocity[0] = -ball.velocity[0];
+                    entities.delete(entity).expect("Failed to delete brick");
                 }
 
                 if circle_line_segment_collision(
@@ -66,6 +75,7 @@ impl<'a> System<'a> for BallBounceSystem {
                     (x_right, y_top),
                 ) && ball.velocity[1] < 0.0 {
                     ball.velocity[1] = -ball.velocity[1];
+                    entities.delete(entity).expect("Failed to delete brick");
                 }
 
                 if circle_line_segment_collision(
@@ -75,6 +85,7 @@ impl<'a> System<'a> for BallBounceSystem {
                     (x_right, y_bottom),
                 ) && ball.velocity[1] > 0.0 {
                     ball.velocity[1] = -ball.velocity[1];
+                    entities.delete(entity).expect("Failed to delete brick");
                 }
 
                 if circle_line_segment_collision(
@@ -84,6 +95,7 @@ impl<'a> System<'a> for BallBounceSystem {
                     (x_right, y_bottom),
                 ) && ball.velocity[0] < 0.0 {
                     ball.velocity[0] = -ball.velocity[0];
+                    entities.delete(entity).expect("Failed to delete brick");
                 }
             }
 
