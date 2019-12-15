@@ -20,7 +20,7 @@ use crate::{
     config::GameConfig,
     entities::brick::BrickPrefab,
     states::GameState,
-    systems::{BallMovementSystem, PaddleMovementSystem},
+    systems::{BallBounceSystem, BallMovementSystem, PaddleMovementSystem},
 };
 
 fn main() -> amethyst::Result<()> {
@@ -55,6 +55,7 @@ fn main() -> amethyst::Result<()> {
             &[],
         )
         .with(BallMovementSystem, "ball_movement_system", &[])
+        .with(BallBounceSystem, "ball_bounce_system", &["ball_movement_system"])
         .with(PaddleMovementSystem, "paddle_movement_system", &["input_system"]);
 
     let assets_path = app_root.join("assets");

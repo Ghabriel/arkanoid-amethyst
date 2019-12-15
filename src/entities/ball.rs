@@ -8,6 +8,7 @@ use amethyst::{
 
 use crate::config::GameConfig;
 
+#[derive(Debug)]
 pub struct Ball {
     pub radius: f32,
     pub velocity: [f32; 2],
@@ -23,7 +24,8 @@ pub fn initialise_ball(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
 
         let ball = Ball {
             radius: config.ball.radius,
-            velocity: [120.0, 40.0],
+            velocity: [220.0, 130.0],
+            // velocity: [120.0, 40.0],
         };
 
         let mut transform = Transform::default();

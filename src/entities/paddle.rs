@@ -8,6 +8,7 @@ use amethyst::{
 
 use crate::config::GameConfig;
 
+#[derive(Debug)]
 pub struct Paddle {
     pub width: f32,
     pub height: f32,
