@@ -1,11 +1,9 @@
 use amethyst::{
-    assets::{Handle, PrefabData, ProgressCounter},
+    assets::{PrefabData, ProgressCounter},
     core::Transform,
     derive::PrefabData,
     ecs::{Component, DenseVecStorage, Entity, WriteStorage},
     Error,
-    prelude::*,
-    renderer::{SpriteRender, SpriteSheet},
 };
 
 use serde::{Deserialize, Serialize};
@@ -14,7 +12,7 @@ use serde::{Deserialize, Serialize};
 pub struct BrickPrefab {
     brick: Brick,
     transform: Transform,
-    // sprite_render: SpriteRender,
+    // SpriteRender can't be present in a prefab, so it's added later, in GameState.
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PrefabData)]
@@ -27,26 +25,4 @@ pub struct Brick {
 
 impl Component for Brick {
     type Storage = DenseVecStorage<Self>;
-}
-
-pub fn initialise_bricks(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
-    let brick = Brick {
-        width: 50.0,
-        height: 20.0,
-    };
-
-    let mut transform = Transform::default();
-    transform.set_translation_xyz(80.0, 550.0, 0.0);
-
-    let sprite_render = SpriteRender {
-        sprite_sheet,
-        sprite_number: 2,
-    };
-
-    world
-        .create_entity()
-        .with(brick)
-        .with(transform)
-        .with(sprite_render)
-        .build();
 }

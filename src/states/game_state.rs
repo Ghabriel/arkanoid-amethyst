@@ -1,6 +1,5 @@
 use amethyst::{
     assets::{
-        AssetStorage,
         Handle,
         Loader,
         Prefab,
@@ -108,7 +107,7 @@ impl SimpleState for GameState {
                     ReadStorage<Brick>,
                     WriteStorage<SpriteRender>,
                 )| {
-                    for (entity, brick) in (&entities, &bricks).join() {
+                    for (entity, _) in (&entities, &bricks).join() {
                         let sprite_render = SpriteRender {
                             sprite_sheet: self.sprite_sheet.clone().unwrap(),
                             sprite_number: 2,
