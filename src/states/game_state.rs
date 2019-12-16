@@ -8,19 +8,16 @@ use amethyst::{
         RonFormat,
     },
     core::Transform,
-    ecs::{
-        prelude::*,
-        world::EntitiesRes,
-    },
+    ecs::prelude::*,
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat},
 };
 
 use crate::{
     config::GameConfig,
-    entities::ball::{Ball, initialise_ball},
+    entities::ball::initialise_ball,
     entities::brick::{Brick, BrickPrefab},
-    entities::paddle::{Paddle, initialise_paddle},
+    entities::paddle::initialise_paddle,
 };
 
 use std::ops::Deref;
@@ -67,10 +64,11 @@ pub struct LevelData {
     pub state: LevelState,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 pub enum LevelState {
     Cleared,
     GameOver,
+    Loading,
     Playing,
 }
 
@@ -103,17 +101,17 @@ impl GameState {
         initialise_paddle(world, sprite_sheet.clone());
         initialise_camera(world);
 
+        world.insert(LevelData {
+            current_level: level,
+            state: LevelState::Loading,
+        });
+
         let prefab_handle = world.exec(|loader: PrefabLoader<'_, BrickPrefab>| {
             loader.load(
                 format!("prefabs/level{}.ron", level),
                 RonFormat,
                 &mut self.progress_counter,
             )
-        });
-
-        world.insert(LevelData {
-            current_level: level,
-            state: LevelState::Playing,
         });
 
         world
@@ -153,14 +151,15 @@ impl SimpleState for GameState {
                     self.attached_sprites_to_bricks = true;
                 },
             );
+
+            data.world.write_resource::<LevelData>().state = LevelState::Playing;
         }
 
         let level_data = data.world.read_resource::<LevelData>().deref().clone();
         match level_data.state {
-            LevelState::Cleared => {
-                println!("Level Cleared");
-            },
+            LevelState::Cleared => self.load_level(&mut data.world, level_data.current_level + 1),
             LevelState::GameOver => self.load_level(&mut data.world, level_data.current_level),
+            LevelState::Loading => {},
             LevelState::Playing => {},
         }
 
