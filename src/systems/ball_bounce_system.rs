@@ -6,6 +6,7 @@ use amethyst::{
         ReadStorage,
         System,
         world::EntitiesRes,
+        WriteExpect,
         WriteStorage,
     },
 };
@@ -17,6 +18,7 @@ use crate::{
         brick::Brick,
         paddle::Paddle,
     },
+    states::game_state::{LevelData, LevelState},
 };
 
 pub struct BallBounceSystem;
@@ -29,19 +31,33 @@ impl<'a> System<'a> for BallBounceSystem {
         ReadStorage<'a, Paddle>,
         Read<'a, EntitiesRes>,
         Read<'a, GameConfig>,
+        WriteExpect<'a, LevelData>,
     );
 
-    fn run(&mut self, (mut balls, transforms, bricks, paddles, entities, config): Self::SystemData) {
+    fn run(&mut self, (
+        mut balls,
+        transforms,
+        bricks,
+        paddles,
+        entities,
+        config,
+        mut level_data,
+    ): Self::SystemData) {
         for (mut ball, transform) in (&mut balls, &transforms).join() {
             Self::handle_brick_collisions(&mut ball, &transform, &transforms, &bricks, &entities);
             Self::handle_paddle_collisions(&mut ball, &transform, &transforms, &paddles);
-            Self::handle_wall_collisions(&mut ball, &transform, &config);
+            Self::handle_wall_collisions(&mut ball, &transform, &config, &mut level_data);
         }
     }
 }
 
 impl BallBounceSystem {
-    fn handle_wall_collisions(ball: &mut Ball, transform: &Transform, config: &GameConfig) {
+    fn handle_wall_collisions(
+        ball: &mut Ball,
+        transform: &Transform,
+        config: &GameConfig,
+        level_data: &mut LevelData,
+    ) {
         let ball_x = transform.translation().x;
         let ball_y = transform.translation().y;
 
@@ -56,7 +72,7 @@ impl BallBounceSystem {
         }
 
         if ball_y <= ball.radius && ball.velocity[1] < 0.0 {
-            println!("SCORE");
+            level_data.state = LevelState::GameOver;
         }
     }
 

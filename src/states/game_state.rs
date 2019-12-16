@@ -8,7 +8,10 @@ use amethyst::{
         RonFormat,
     },
     core::Transform,
-    ecs::prelude::*,
+    ecs::{
+        prelude::*,
+        world::EntitiesRes,
+    },
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat},
 };
@@ -19,6 +22,8 @@ use crate::{
     entities::brick::{Brick, BrickPrefab},
     entities::paddle::{Paddle, initialise_paddle},
 };
+
+use std::ops::Deref;
 
 pub fn initialise_camera(world: &mut World) {
     let (arena_width, arena_height) = {
@@ -54,10 +59,26 @@ pub fn load_sprite_sheet(world: &World) -> Handle<SpriteSheet> {
     )
 }
 
+pub type LevelId = u8;
+
+#[derive(Clone)]
+pub struct LevelData {
+    pub current_level: LevelId,
+    pub state: LevelState,
+}
+
+#[derive(Clone)]
+pub enum LevelState {
+    Cleared,
+    GameOver,
+    Playing,
+}
+
 pub struct GameState {
     pub sprite_sheet: Option<Handle<SpriteSheet>>,
     pub progress_counter: ProgressCounter,
     pub prefab_handle: Option<Handle<Prefab<BrickPrefab>>>,
+    pub attached_sprites_to_bricks: bool,
 }
 
 impl GameState {
@@ -66,28 +87,33 @@ impl GameState {
             sprite_sheet: None,
             progress_counter: ProgressCounter::new(),
             prefab_handle: None,
+            attached_sprites_to_bricks: false,
         }
     }
-}
 
-impl SimpleState for GameState {
-    fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let mut world = data.world;
-        let sprite_sheet = load_sprite_sheet(&world);
+    fn load_level(&mut self, world: &mut World, level: LevelId) {
+        if self.sprite_sheet.is_none() {
+            self.sprite_sheet = Some(load_sprite_sheet(&world));
+        }
 
-        world.register::<Ball>();
-        world.register::<Brick>();
-        world.register::<Paddle>();
-        initialise_ball(&mut world, sprite_sheet.clone());
-        initialise_paddle(&mut world, sprite_sheet.clone());
-        initialise_camera(&mut world);
+        world.delete_all();
+
+        let sprite_sheet = self.sprite_sheet.as_ref().unwrap();
+        initialise_ball(world, sprite_sheet.clone());
+        initialise_paddle(world, sprite_sheet.clone());
+        initialise_camera(world);
 
         let prefab_handle = world.exec(|loader: PrefabLoader<'_, BrickPrefab>| {
             loader.load(
-                "prefabs/level1.ron",
+                format!("prefabs/level{}.ron", level),
                 RonFormat,
                 &mut self.progress_counter,
             )
+        });
+
+        world.insert(LevelData {
+            current_level: level,
+            state: LevelState::Playing,
         });
 
         world
@@ -95,12 +121,18 @@ impl SimpleState for GameState {
             .with(prefab_handle.clone())
             .build();
 
-        self.sprite_sheet = Some(sprite_sheet);
         self.prefab_handle = Some(prefab_handle);
+        self.attached_sprites_to_bricks = false;
+    }
+}
+
+impl SimpleState for GameState {
+    fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        self.load_level(data.world, 1);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
-        if self.progress_counter.is_complete() {
+        if self.progress_counter.is_complete() && !self.attached_sprites_to_bricks {
             data.world.exec(
                 |(entities, bricks, mut sprite_renders): (
                     Entities,
@@ -117,8 +149,19 @@ impl SimpleState for GameState {
                             .insert(entity, sprite_render)
                             .unwrap();
                     }
+
+                    self.attached_sprites_to_bricks = true;
                 },
             );
+        }
+
+        let level_data = data.world.read_resource::<LevelData>().deref().clone();
+        match level_data.state {
+            LevelState::Cleared => {
+                println!("Level Cleared");
+            },
+            LevelState::GameOver => self.load_level(&mut data.world, level_data.current_level),
+            LevelState::Playing => {},
         }
 
         Trans::None
