@@ -195,8 +195,14 @@ fn circle_line_segment_collision(
      */
     let line_direction_squared_length = dot_product(line_direction, line_direction);
 
-    if pseudo_projection_length < 0.0 || pseudo_projection_length > line_direction_squared_length {
-        false
+    let radius_squared = radius * radius;
+
+    if pseudo_projection_length < 0.0 {
+        let distance_circle_p1_squared = dot_product((xc, yc), (x1, y1));
+        distance_circle_p1_squared <= radius_squared
+    } else if pseudo_projection_length > line_direction_squared_length {
+        let distance_circle_p2_squared = dot_product((xc, yc), (x2, y2));
+        distance_circle_p2_squared <= radius_squared
     } else {
         /*
          * ||a||² = a1² + d², by the Pythagorean Theorem,
@@ -206,7 +212,7 @@ fn circle_line_segment_collision(
          */
         let ppl2 = pseudo_projection_length * pseudo_projection_length;
         let d2 = dot_product(a, a) - ppl2 / line_direction_squared_length;
-        d2 <= radius * radius
+        d2 <= radius_squared
     }
 }
 
