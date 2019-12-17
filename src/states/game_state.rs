@@ -7,25 +7,31 @@ use amethyst::{
         ProgressCounter,
         RonFormat,
     },
-    core::Transform,
+    core::{ArcThreadPool, Transform},
     ecs::prelude::*,
-    input::{BindingTypes, InputHandler, StringBindings},
+    input::{InputHandler, StringBindings},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat},
 };
 
 use crate::{
+    action_trigger_limiter::ActionTriggerLimiter,
     config::GameConfig,
-    entities::ball::initialise_ball,
-    entities::brick::{Brick, BrickPrefab},
-    entities::paddle::initialise_paddle,
+    entities::{
+        ball::initialise_ball,
+        brick::{Brick, BrickPrefab},
+        paddle::initialise_paddle,
+    },
+    states::PauseState,
+    systems::{
+        BallBounceSystem,
+        BallMovementSystem,
+        LevelClearSystem,
+        PaddleMovementSystem,
+    },
 };
 
-use std::{
-    borrow::Borrow,
-    hash::Hash,
-    ops::Deref,
-};
+use std::ops::Deref;
 
 pub fn initialise_camera(world: &mut World) {
     let (arena_width, arena_height) = {
@@ -77,39 +83,8 @@ pub enum LevelState {
     Playing,
 }
 
-/**
- * Limits an action so that it only happens once per keypress.
- */
-#[derive(Default)]
-pub struct ActionTriggerLimiter {
-    last_action_state: bool,
-}
-
-impl ActionTriggerLimiter {
-    pub fn action_is_down<T, A>(
-        &mut self,
-        input_handler: &InputHandler<T>,
-        action: &A,
-    ) -> bool
-        where T: BindingTypes,
-              T::Action: Borrow<A>,
-              A: Hash + Eq + ?Sized,
-    {
-        let was_pressed_previously = self.last_action_state;
-
-        self.last_action_state = input_handler
-            .action_is_down(action)
-            .unwrap_or(false);
-
-        if was_pressed_previously {
-            false
-        } else {
-            self.last_action_state
-        }
-    }
-}
-
-pub struct GameState {
+pub struct GameState<'a, 'b> {
+    pub dispatcher: Option<Dispatcher<'a, 'b>>,
     pub sprite_sheet: Option<Handle<SpriteSheet>>,
     pub progress_counter: ProgressCounter,
     pub prefab_handle: Option<Handle<Prefab<BrickPrefab>>>,
@@ -117,9 +92,10 @@ pub struct GameState {
     pub pause_action: ActionTriggerLimiter,
 }
 
-impl GameState {
-    pub fn new() -> GameState {
+impl<'a, 'b> GameState<'a, 'b> {
+    pub fn new() -> GameState<'a, 'b> {
         GameState {
+            dispatcher: None,
             sprite_sheet: None,
             progress_counter: ProgressCounter::new(),
             prefab_handle: None,
@@ -163,12 +139,28 @@ impl GameState {
     }
 }
 
-impl SimpleState for GameState {
+impl SimpleState for GameState<'_, '_> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        let mut dispatcher_builder = DispatcherBuilder::new();
+        dispatcher_builder.add(BallMovementSystem, "ball_movement_system", &[]);
+        dispatcher_builder.add(BallBounceSystem, "ball_bounce_system", &["ball_movement_system"]);
+        dispatcher_builder.add(LevelClearSystem, "level_clear_system", &["ball_bounce_system"]);
+        dispatcher_builder.add(PaddleMovementSystem, "paddle_movement_system", &[]);
+
+        let mut dispatcher = dispatcher_builder
+            .with_pool(data.world.read_resource::<ArcThreadPool>().deref().clone())
+            .build();
+        dispatcher.setup(data.world);
+        self.dispatcher = Some(dispatcher);
+
         self.load_level(data.world, 1);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+        if let Some(dispatcher) = self.dispatcher.as_mut() {
+            dispatcher.dispatch(&data.world);
+        }
+
         if self.progress_counter.is_complete() && !self.attached_sprites_to_bricks {
             data.world.exec(
                 |(entities, bricks, mut sprite_renders): (
@@ -208,7 +200,7 @@ impl SimpleState for GameState {
         );
 
         if pause {
-            println!("PAUSE");
+            return Trans::Push(Box::new(PauseState::default()));
         }
 
         Trans::None

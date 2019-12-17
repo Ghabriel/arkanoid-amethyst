@@ -1,3 +1,4 @@
+mod action_trigger_limiter;
 mod config;
 mod entities;
 mod states;
@@ -20,12 +21,6 @@ use crate::{
     config::GameConfig,
     entities::brick::BrickPrefab,
     states::GameState,
-    systems::{
-        BallBounceSystem,
-        BallMovementSystem,
-        LevelClearSystem,
-        PaddleMovementSystem,
-    },
 };
 
 fn main() -> amethyst::Result<()> {
@@ -58,11 +53,7 @@ fn main() -> amethyst::Result<()> {
             PrefabLoaderSystemDesc::<BrickPrefab>::default(),
             "prefab_loader",
             &[],
-        )
-        .with(BallMovementSystem, "ball_movement_system", &[])
-        .with(BallBounceSystem, "ball_bounce_system", &["ball_movement_system"])
-        .with(LevelClearSystem, "level_clear_system", &["ball_bounce_system"])
-        .with(PaddleMovementSystem, "paddle_movement_system", &["input_system"]);
+        );
 
     let assets_path = app_root.join("assets");
     Application::build(assets_path, GameState::new())?
