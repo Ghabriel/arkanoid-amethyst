@@ -56,7 +56,7 @@ fn main() -> amethyst::Result<()> {
         );
 
     let assets_path = app_root.join("assets");
-    Application::build(assets_path, GameState::new())?
+    Application::build(assets_path, GameState::default())?
         .with_resource(game_config)
         .build(game_data)?
         .run();

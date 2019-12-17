@@ -83,6 +83,7 @@ pub enum LevelState {
     Playing,
 }
 
+#[derive(Default)]
 pub struct GameState<'a, 'b> {
     pub dispatcher: Option<Dispatcher<'a, 'b>>,
     pub sprite_sheet: Option<Handle<SpriteSheet>>,
@@ -92,18 +93,7 @@ pub struct GameState<'a, 'b> {
     pub pause_action: ActionTriggerLimiter,
 }
 
-impl<'a, 'b> GameState<'a, 'b> {
-    pub fn new() -> GameState<'a, 'b> {
-        GameState {
-            dispatcher: None,
-            sprite_sheet: None,
-            progress_counter: ProgressCounter::new(),
-            prefab_handle: None,
-            attached_sprites_to_bricks: false,
-            pause_action: ActionTriggerLimiter::default(),
-        }
-    }
-
+impl GameState<'_, '_> {
     fn load_level(&mut self, world: &mut World, level: LevelId) {
         if self.sprite_sheet.is_none() {
             self.sprite_sheet = Some(load_sprite_sheet(&world));
