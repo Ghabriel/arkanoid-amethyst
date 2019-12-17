@@ -9,6 +9,7 @@ use amethyst::{
     },
     core::Transform,
     ecs::prelude::*,
+    input::{BindingTypes, InputHandler, StringBindings},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat},
 };
@@ -20,7 +21,11 @@ use crate::{
     entities::paddle::initialise_paddle,
 };
 
-use std::ops::Deref;
+use std::{
+    borrow::Borrow,
+    hash::Hash,
+    ops::Deref,
+};
 
 pub fn initialise_camera(world: &mut World) {
     let (arena_width, arena_height) = {
@@ -72,11 +77,44 @@ pub enum LevelState {
     Playing,
 }
 
+/**
+ * Limits an action so that it only happens once per keypress.
+ */
+#[derive(Default)]
+pub struct ActionTriggerLimiter {
+    last_action_state: bool,
+}
+
+impl ActionTriggerLimiter {
+    pub fn action_is_down<T, A>(
+        &mut self,
+        input_handler: &InputHandler<T>,
+        action: &A,
+    ) -> bool
+        where T: BindingTypes,
+              T::Action: Borrow<A>,
+              A: Hash + Eq + ?Sized,
+    {
+        let was_pressed_previously = self.last_action_state;
+
+        self.last_action_state = input_handler
+            .action_is_down(action)
+            .unwrap_or(false);
+
+        if was_pressed_previously {
+            false
+        } else {
+            self.last_action_state
+        }
+    }
+}
+
 pub struct GameState {
     pub sprite_sheet: Option<Handle<SpriteSheet>>,
     pub progress_counter: ProgressCounter,
     pub prefab_handle: Option<Handle<Prefab<BrickPrefab>>>,
     pub attached_sprites_to_bricks: bool,
+    pub pause_action: ActionTriggerLimiter,
 }
 
 impl GameState {
@@ -86,6 +124,7 @@ impl GameState {
             progress_counter: ProgressCounter::new(),
             prefab_handle: None,
             attached_sprites_to_bricks: false,
+            pause_action: ActionTriggerLimiter::default(),
         }
     }
 
@@ -161,6 +200,15 @@ impl SimpleState for GameState {
             LevelState::GameOver => self.load_level(&mut data.world, level_data.current_level),
             LevelState::Loading => {},
             LevelState::Playing => {},
+        }
+
+        let pause = self.pause_action.action_is_down(
+            data.world.read_resource::<InputHandler<StringBindings>>().deref(),
+            "pause",
+        );
+
+        if pause {
+            println!("PAUSE");
         }
 
         Trans::None

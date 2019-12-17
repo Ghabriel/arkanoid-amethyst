@@ -8,5 +8,7 @@
         //     dead_zone: 0.2,
         // ),
     },
-    actions: {},
+    actions: {
+        "pause": [[Key(Return)]],
+    },
 )
