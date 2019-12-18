@@ -1,15 +1,22 @@
 use amethyst::{
     assets::Loader,
-    ecs::Entity,
+    core::ArcThreadPool,
+    ecs::prelude::*,
     prelude::*,
     ui::{Anchor, TtfFormat, UiText, UiTransform},
 };
 
 use crate::{
     config::GameConfig,
+    states::GameState,
+    systems::MenuSystem,
 };
 
+use std::ops::Deref;
+
 pub struct Menu {
+    pub focused_item: u8,
+    pub selected: bool,
     pub new_game: Entity,
     pub about: Entity,
 }
@@ -69,20 +76,49 @@ fn initialise_menu(world: &mut World) {
         .build();
 
     world.insert(Menu {
+        focused_item: 0,
+        selected: false,
         new_game,
         about,
     });
 }
 
 #[derive(Default)]
-pub struct MenuState;
+pub struct MenuState<'a, 'b> {
+    pub dispatcher: Option<Dispatcher<'a, 'b>>,
+}
 
-impl SimpleState for MenuState {
+impl SimpleState for MenuState<'_, '_> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        let mut dispatcher_builder = DispatcherBuilder::new();
+        dispatcher_builder.add(MenuSystem::default(), "menu_system", &[]);
+
+        let mut dispatcher = dispatcher_builder
+            .with_pool(data.world.read_resource::<ArcThreadPool>().deref().clone())
+            .build();
+        dispatcher.setup(data.world);
+        self.dispatcher = Some(dispatcher);
+
         initialise_menu(data.world);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
-        Trans::None
+        if let Some(dispatcher) = self.dispatcher.as_mut() {
+            dispatcher.dispatch(&data.world);
+        }
+
+        let menu = data.world.read_resource::<Menu>();
+        if menu.selected {
+            match menu.focused_item {
+                0 => Trans::Switch(Box::new(GameState::default())),
+                1 => {
+                    println!("About");
+                    Trans::Quit
+                },
+                _ => unreachable!(),
+            }
+        } else {
+            Trans::None
+        }
     }
 }

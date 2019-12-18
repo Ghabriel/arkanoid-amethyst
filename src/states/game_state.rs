@@ -144,6 +144,7 @@ impl SimpleState for GameState<'_, '_> {
         self.dispatcher = Some(dispatcher);
 
         self.load_level(data.world, 1);
+        self.pause_action.last_action_state = true;
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {

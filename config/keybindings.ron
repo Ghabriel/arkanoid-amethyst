@@ -10,5 +10,7 @@
     },
     actions: {
         "pause": [[Key(Return)]],
+        "menu_up": [[Key(Up)]],
+        "menu_down": [[Key(Down)]],
     },
 )
