@@ -14,13 +14,14 @@ use amethyst::{
         types::DefaultBackend,
         RenderingBundle,
     },
+    ui::{RenderUi, UiBundle},
     utils::application_root_dir,
 };
 
 use crate::{
     config::GameConfig,
     entities::brick::BrickPrefab,
-    states::GameState,
+    states::MenuState,
 };
 
 fn main() -> amethyst::Result<()> {
@@ -43,12 +44,14 @@ fn main() -> amethyst::Result<()> {
                         .with_clear([0.0, 0.0, 0.0, 1.0]),
                 )
                 .with_plugin(RenderFlat2D::default())
+                .with_plugin(RenderUi::default()),
         )?
         .with_bundle(TransformBundle::new())?
         .with_bundle(
             InputBundle::<StringBindings>::new()
                 .with_bindings_from_file(keybindings_config_path)?
         )?
+        .with_bundle(UiBundle::<StringBindings>::new())?
         .with_system_desc(
             PrefabLoaderSystemDesc::<BrickPrefab>::default(),
             "prefab_loader",
@@ -56,7 +59,7 @@ fn main() -> amethyst::Result<()> {
         );
 
     let assets_path = app_root.join("assets");
-    Application::build(assets_path, GameState::default())?
+    Application::build(assets_path, MenuState::default())?
         .with_resource(game_config)
         .build(game_data)?
         .run();
