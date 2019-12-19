@@ -21,18 +21,19 @@ Start Date: 2019-12-10
 const QUIT_TEXT: &'static str = "Press any key to return...";
 
 #[derive(Default)]
-pub struct AboutState;
+pub struct AboutState {
+    entities: Vec<Entity>,
+}
 
 impl SimpleState for AboutState {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        initialise_text(data.world);
+        self.entities = initialise_text(data.world);
     }
 
     fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let world = data.world;
-        let entities = &world.read_resource::<AboutText>().entities.clone();
-        world.delete_entities(entities).expect("Failed to delete 'about text'");
-        world.remove::<AboutText>();
+        data.world
+            .delete_entities(&self.entities)
+            .expect("Failed to delete AboutState entities");
     }
 
     fn handle_event(&mut self, _data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {
@@ -48,11 +49,7 @@ impl SimpleState for AboutState {
     }
 }
 
-struct AboutText {
-    entities: Vec<Entity>,
-}
-
-fn initialise_text(world: &mut World) {
+fn initialise_text(world: &mut World) -> Vec<Entity> {
     let font = world.read_resource::<Loader>().load(
         "font/square.ttf",
         TtfFormat,
@@ -67,9 +64,7 @@ fn initialise_text(world: &mut World) {
     let main_text_entity = initialise_main_text(world, &font, &arena_config);
     let quit_text_entity = initialise_quit_text(world, &font, &arena_config);
 
-    world.insert(AboutText {
-        entities: vec![main_text_entity, quit_text_entity],
-    });
+    vec![main_text_entity, quit_text_entity]
 }
 
 fn initialise_main_text(world: &mut World, font: &FontHandle, arena_config: &ArenaConfig) -> Entity {
