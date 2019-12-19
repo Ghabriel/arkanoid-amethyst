@@ -37,28 +37,21 @@ impl<'a> System<'a> for MenuSystem {
         );
 
         if menu_up || menu_down {
-            let text = texts.get_mut(
-                if menu.focused_item == 0 {
-                    menu.new_game
-                } else {
-                    menu.about
-                }
-            ).expect("Failed to retrieve old menu item");
+            let text = texts
+                .get_mut(menu.items[menu.focused_item])
+                .expect("Failed to retrieve old menu item");
             text.color = [1., 1., 1., 0.01];
 
-            if menu.focused_item == 0 {
-                menu.focused_item = 1;
+            let count_items = menu.items.len();
+            if menu_up {
+                menu.focused_item = (count_items + menu.focused_item - 1) % count_items;
             } else {
-                menu.focused_item = 0;
+                menu.focused_item = (menu.focused_item + 1) % count_items;
             }
 
-            let text = texts.get_mut(
-                if menu.focused_item == 0 {
-                    menu.new_game
-                } else {
-                    menu.about
-                }
-            ).expect("Failed to retrieve old menu item");
+            let text = texts
+                .get_mut(menu.items[menu.focused_item])
+                .expect("Failed to retrieve new menu item");
             text.color = [1., 1., 1., 1.];
         }
 

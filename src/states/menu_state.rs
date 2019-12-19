@@ -15,10 +15,9 @@ use crate::{
 use std::ops::Deref;
 
 pub struct Menu {
-    pub focused_item: u8,
+    pub focused_item: usize,
     pub selected: bool,
-    pub new_game: Entity,
-    pub about: Entity,
+    pub items: Vec<Entity>,
 }
 
 fn initialise_menu(world: &mut World) {
@@ -78,8 +77,7 @@ fn initialise_menu(world: &mut World) {
     world.insert(Menu {
         focused_item: 0,
         selected: false,
-        new_game,
-        about,
+        items: vec![new_game, about],
     });
 }
 
