@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct GameConfig {
     pub arena: ArenaConfig,
     pub ball: BallConfig,
     pub paddle: PaddleConfig,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArenaConfig {
     pub width: f32,
     pub height: f32,
@@ -22,7 +22,7 @@ impl Default for ArenaConfig {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BallConfig {
     pub radius: f32,
 }
@@ -35,7 +35,7 @@ impl Default for BallConfig {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PaddleConfig {
     pub width: f32,
     pub height: f32,

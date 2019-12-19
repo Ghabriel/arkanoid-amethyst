@@ -8,7 +8,7 @@ use amethyst::{
 
 use crate::{
     config::GameConfig,
-    states::GameState,
+    states::{AboutState, GameState},
     systems::MenuSystem,
 };
 
@@ -100,6 +100,17 @@ impl SimpleState for MenuState<'_, '_> {
         initialise_menu(data.world);
     }
 
+    fn on_pause(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        let world = data.world;
+        let menu_items = &world.read_resource::<Menu>().items.clone();
+        world.delete_entities(menu_items).expect("Failed to delete menu items");
+        world.remove::<Menu>();
+    }
+
+    fn on_resume(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        initialise_menu(data.world);
+    }
+
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
         if let Some(dispatcher) = self.dispatcher.as_mut() {
             dispatcher.dispatch(&data.world);
@@ -109,10 +120,7 @@ impl SimpleState for MenuState<'_, '_> {
         if menu.selected {
             match menu.focused_item {
                 0 => Trans::Switch(Box::new(GameState::default())),
-                1 => {
-                    println!("About");
-                    Trans::Quit
-                },
+                1 => Trans::Push(Box::new(AboutState::default())),
                 _ => unreachable!(),
             }
         } else {
