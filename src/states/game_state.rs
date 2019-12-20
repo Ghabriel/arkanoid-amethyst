@@ -7,6 +7,7 @@ use amethyst::{
         ProgressCounter,
         RonFormat,
     },
+    audio::{DjSystem, output::init_output},
     core::{ArcThreadPool, Transform},
     ecs::prelude::*,
     input::InputEvent,
@@ -15,6 +16,7 @@ use amethyst::{
 };
 
 use crate::{
+    audio::Music,
     config::GameConfig,
     entities::{
         ball::initialise_ball,
@@ -129,18 +131,22 @@ impl GameState<'_, '_> {
 
 impl SimpleState for GameState<'_, '_> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let mut dispatcher_builder = DispatcherBuilder::new();
-        dispatcher_builder.add(BallMovementSystem, "ball_movement_system", &[]);
-        dispatcher_builder.add(BallBounceSystem, "ball_bounce_system", &["ball_movement_system"]);
-        dispatcher_builder.add(LevelClearSystem, "level_clear_system", &["ball_bounce_system"]);
-        dispatcher_builder.add(PaddleMovementSystem, "paddle_movement_system", &[]);
-
-        let mut dispatcher = dispatcher_builder
+        let mut dispatcher = DispatcherBuilder::new()
+            .with(
+                DjSystem::new(|music: &mut Music| music.in_game.next()),
+                "dj_system",
+                &[],
+            )
+            .with(BallMovementSystem, "ball_movement_system", &[])
+            .with(BallBounceSystem, "ball_bounce_system", &["ball_movement_system"])
+            .with(LevelClearSystem, "level_clear_system", &["ball_bounce_system"])
+            .with(PaddleMovementSystem, "paddle_movement_system", &[])
             .with_pool(data.world.read_resource::<ArcThreadPool>().deref().clone())
             .build();
         dispatcher.setup(data.world);
         self.dispatcher = Some(dispatcher);
 
+        init_output(data.world);
         self.load_level(data.world, 1);
     }
 

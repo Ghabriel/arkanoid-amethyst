@@ -16,14 +16,17 @@ use std::{
     vec::IntoIter,
 };
 
-const OPENING_TRACKS: &[&str] = &[
-    "audio/OpeningSelection.ogg",
+const OPENING_TRACK: &str = "audio/OpeningSelection.ogg";
+const IN_GAME_TRACKS: &[&str] = &[
+    "audio/Computer_Music_All-Stars_-_Wheres_My_Jetpack.ogg",
+    "audio/Computer_Music_All-Stars_-_Albatross_v2.ogg",
 ];
 
 const SELECT_OPTION_SOUND: &str = "audio/select_option.wav";
 
 pub struct Music {
-    pub opening: Cycle<IntoIter<SourceHandle>>,
+    pub opening: SourceHandle,
+    pub in_game: Cycle<IntoIter<SourceHandle>>,
 }
 
 pub struct Sounds {
@@ -34,7 +37,9 @@ pub fn initialise_audio(world: &mut World) {
     let (sound_effects, music) = {
         let loader = world.read_resource::<Loader>();
 
-        let opening = OPENING_TRACKS
+        let opening = loader.load(OPENING_TRACK, OggFormat, (), &world.read_resource());
+
+        let in_game = IN_GAME_TRACKS
             .iter()
             .map(|file| loader.load(*file, OggFormat, (), &world.read_resource()))
             .collect::<Vec<_>>()
@@ -43,6 +48,7 @@ pub fn initialise_audio(world: &mut World) {
 
         let music = Music {
             opening,
+            in_game,
         };
 
         let sound_effects = Sounds {

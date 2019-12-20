@@ -1,5 +1,6 @@
 use amethyst::{
     assets::Loader,
+    audio::{AudioSink, DjSystem, output::{init_output, Output}},
     core::ArcThreadPool,
     ecs::prelude::*,
     prelude::*,
@@ -7,7 +8,7 @@ use amethyst::{
 };
 
 use crate::{
-    audio::initialise_audio,
+    audio::{initialise_audio, Music},
     config::GameConfig,
     states::{AboutState, GameState},
     systems::MenuSystem,
@@ -89,17 +90,26 @@ pub struct MenuState<'a, 'b> {
 
 impl SimpleState for MenuState<'_, '_> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
-        let mut dispatcher_builder = DispatcherBuilder::new();
-        dispatcher_builder.add(MenuSystem::new(data.world), "menu_system", &[]);
-
-        let mut dispatcher = dispatcher_builder
+        let mut dispatcher = DispatcherBuilder::new()
+            .with(
+                DjSystem::new(|music: &mut Music| Some(music.opening.clone())),
+                "dj_system",
+                &[],
+            )
+            .with(MenuSystem::new(data.world), "menu_system", &[])
             .with_pool(data.world.read_resource::<ArcThreadPool>().deref().clone())
             .build();
         dispatcher.setup(data.world);
         self.dispatcher = Some(dispatcher);
 
+        init_output(data.world);
         initialise_audio(data.world);
         initialise_menu(data.world);
+    }
+
+    fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        data.world.remove::<AudioSink>();
+        data.world.remove::<Output>();
     }
 
     fn on_pause(&mut self, data: StateData<'_, GameData<'_, '_>>) {
