@@ -7,6 +7,7 @@ use amethyst::{
 };
 
 use crate::{
+    audio::initialise_audio,
     config::GameConfig,
     states::{AboutState, GameState},
     systems::MenuSystem,
@@ -97,6 +98,7 @@ impl SimpleState for MenuState<'_, '_> {
         dispatcher.setup(data.world);
         self.dispatcher = Some(dispatcher);
 
+        initialise_audio(data.world);
         initialise_menu(data.world);
     }
 

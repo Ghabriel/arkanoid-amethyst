@@ -1,3 +1,4 @@
+mod audio;
 mod config;
 mod entities;
 mod states;
@@ -5,6 +6,7 @@ mod systems;
 
 use amethyst::{
     assets::PrefabLoaderSystemDesc,
+    audio::{AudioBundle, DjSystemDesc},
     core::transform::TransformBundle,
     input::{InputBundle, StringBindings},
     prelude::*,
@@ -18,6 +20,7 @@ use amethyst::{
 };
 
 use crate::{
+    audio::Music,
     config::GameConfig,
     entities::brick::BrickPrefab,
     states::MenuState,
@@ -54,6 +57,12 @@ fn main() -> amethyst::Result<()> {
         .with_system_desc(
             PrefabLoaderSystemDesc::<BrickPrefab>::default(),
             "prefab_loader",
+            &[],
+        )
+        .with_bundle(AudioBundle::default())?
+        .with_system_desc(
+            DjSystemDesc::new(|music: &mut Music| music.opening.next()),
+            "dj_system",
             &[],
         );
 
