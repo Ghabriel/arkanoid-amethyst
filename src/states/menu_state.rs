@@ -89,7 +89,7 @@ pub struct MenuState<'a, 'b> {
 impl SimpleState for MenuState<'_, '_> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let mut dispatcher_builder = DispatcherBuilder::new();
-        dispatcher_builder.add(MenuSystem::default(), "menu_system", &[]);
+        dispatcher_builder.add(MenuSystem::new(data.world), "menu_system", &[]);
 
         let mut dispatcher = dispatcher_builder
             .with_pool(data.world.read_resource::<ArcThreadPool>().deref().clone())

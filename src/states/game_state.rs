@@ -9,13 +9,12 @@ use amethyst::{
     },
     core::{ArcThreadPool, Transform},
     ecs::prelude::*,
-    input::{InputHandler, StringBindings},
+    input::InputEvent,
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat},
 };
 
 use crate::{
-    action_trigger_limiter::ActionTriggerLimiter,
     config::GameConfig,
     entities::{
         ball::initialise_ball,
@@ -90,7 +89,6 @@ pub struct GameState<'a, 'b> {
     pub progress_counter: ProgressCounter,
     pub prefab_handle: Option<Handle<Prefab<BrickPrefab>>>,
     pub attached_sprites_to_bricks: bool,
-    pub pause_action: ActionTriggerLimiter,
 }
 
 impl GameState<'_, '_> {
@@ -144,7 +142,6 @@ impl SimpleState for GameState<'_, '_> {
         self.dispatcher = Some(dispatcher);
 
         self.load_level(data.world, 1);
-        self.pause_action.last_action_state = true;
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
@@ -185,15 +182,15 @@ impl SimpleState for GameState<'_, '_> {
             LevelState::Playing => {},
         }
 
-        let pause = self.pause_action.action_is_down(
-            data.world.read_resource::<InputHandler<StringBindings>>().deref(),
-            "pause",
-        );
-
-        if pause {
-            return Trans::Push(Box::new(PauseState::default()));
-        }
-
         Trans::None
+    }
+
+    fn handle_event(&mut self, _data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {
+        match event {
+            StateEvent::Input(
+                InputEvent::ActionPressed(action)
+            ) if action == "pause" => Trans::Push(Box::new(PauseState::default())),
+            _ => Trans::None,
+        }
     }
 }
