@@ -1,7 +1,7 @@
 use amethyst::{
     assets::Loader,
     ecs::Entity,
-    input::{ElementState, get_key},
+    input::InputEvent,
     prelude::*,
     ui::{Anchor, FontHandle, LineMode, TtfFormat, UiText, UiTransform},
 };
@@ -37,15 +37,10 @@ impl SimpleState for AboutState {
     }
 
     fn handle_event(&mut self, _data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {
-        if let StateEvent::Window(event) = &event {
-            if let Some((_, state)) = get_key(&event) {
-                if state == ElementState::Pressed {
-                    return Trans::Pop;
-                }
-            }
+        match event {
+            StateEvent::Input(InputEvent::KeyPressed { .. }) => Trans::Pop,
+            _ => Trans::None,
         }
-
-        Trans::None
     }
 }
 
