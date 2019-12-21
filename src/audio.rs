@@ -23,6 +23,8 @@ const IN_GAME_TRACKS: &[&str] = &[
 ];
 
 const SELECT_OPTION_SOUND: &str = "audio/select_option.wav";
+const BOUNCE_SOUND: &str = "audio/bounce.ogg";
+const GAMEOVER_SOUND: &str = "audio/gameover.ogg";
 
 pub struct Music {
     pub opening: SourceHandle,
@@ -31,6 +33,8 @@ pub struct Music {
 
 pub struct Sounds {
     pub select_option_sfx: SourceHandle,
+    pub bounce_sfx: SourceHandle,
+    pub gameover_sfx: SourceHandle,
 }
 
 pub fn initialise_audio(world: &mut World) {
@@ -53,6 +57,8 @@ pub fn initialise_audio(world: &mut World) {
 
         let sound_effects = Sounds {
             select_option_sfx: loader.load(SELECT_OPTION_SOUND, WavFormat, (), &world.read_resource()),
+            bounce_sfx: loader.load(BOUNCE_SOUND, OggFormat, (), &world.read_resource()),
+            gameover_sfx: loader.load(GAMEOVER_SOUND, OggFormat, (), &world.read_resource()),
         };
 
         (sound_effects, music)
@@ -71,6 +77,34 @@ pub fn play_select_option_sound<O>(
         O: Deref<Target = Output>,
 {
     match (storage.get(&sounds.select_option_sfx), output) {
+        (Some(sound), Some(output)) => output.play_once(sound, 1.0),
+        _ => {},
+    }
+}
+
+pub fn play_bounce_sound<O>(
+    sounds: &Sounds,
+    storage: &AssetStorage<Source>,
+    output: &Option<O>,
+)
+    where
+        O: Deref<Target = Output>,
+{
+    match (storage.get(&sounds.bounce_sfx), output) {
+        (Some(sound), Some(output)) => output.play_once(sound, 1.0),
+        _ => {},
+    }
+}
+
+pub fn play_gameover_sound<O>(
+    sounds: &Sounds,
+    storage: &AssetStorage<Source>,
+    output: &Option<O>,
+)
+    where
+        O: Deref<Target = Output>,
+{
+    match (storage.get(&sounds.gameover_sfx), output) {
         (Some(sound), Some(output)) => output.play_once(sound, 1.0),
         _ => {},
     }

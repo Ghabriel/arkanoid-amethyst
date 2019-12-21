@@ -112,11 +112,12 @@ impl SimpleState for MenuState<'_, '_> {
         self.dispatcher = Some(dispatcher);
 
         init_output(world);
+        world.write_resource::<AudioSink>().set_volume(0.25);
         initialise_audio(world);
         initialise_menu(world);
 
         world.insert(EventChannel::<MenuEvent>::new());
-        let reader = world.fetch_mut::<EventChannel<MenuEvent>>().register_reader();
+        let reader = world.write_resource::<EventChannel<MenuEvent>>().register_reader();
         world.insert(reader);
     }
 

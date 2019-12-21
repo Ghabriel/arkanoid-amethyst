@@ -7,7 +7,7 @@ use amethyst::{
         ProgressCounter,
         RonFormat,
     },
-    audio::{DjSystem, output::init_output},
+    audio::{AudioSink, DjSystem, output::init_output},
     core::{ArcThreadPool, Transform},
     ecs::prelude::*,
     input::InputEvent,
@@ -147,6 +147,7 @@ impl SimpleState for GameState<'_, '_> {
         self.dispatcher = Some(dispatcher);
 
         init_output(data.world);
+        data.world.write_resource::<AudioSink>().set_volume(0.25);
         self.load_level(data.world, 1);
     }
 
