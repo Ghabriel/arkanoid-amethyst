@@ -38,7 +38,14 @@ impl SimpleState for AboutState {
 
     fn handle_event(&mut self, _data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {
         match event {
-            StateEvent::Input(InputEvent::KeyPressed { .. }) => Trans::Pop,
+            StateEvent::Input(InputEvent::KeyPressed { .. }) => {
+                println!("AboutState: {:?}", event);
+                Trans::Pop
+            },
+            // StateEvent::Input(InputEvent::KeyPressed { scancode: 108, .. }) => {
+            //     println!("AboutState: {:?}", event);
+            //     Trans::Pop
+            // },
             _ => Trans::None,
         }
     }
