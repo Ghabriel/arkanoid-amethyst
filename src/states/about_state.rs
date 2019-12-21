@@ -1,5 +1,6 @@
 use amethyst::{
-    assets::Loader,
+    assets::{AssetStorage, Loader},
+    audio::{output::Output, Source},
     ecs::Entity,
     input::InputEvent,
     prelude::*,
@@ -7,6 +8,7 @@ use amethyst::{
 };
 
 use crate::{
+    audio::{play_select_option_sound, Sounds},
     config::{ArenaConfig, GameConfig},
 };
 
@@ -36,9 +38,16 @@ impl SimpleState for AboutState {
             .expect("Failed to delete AboutState entities");
     }
 
-    fn handle_event(&mut self, _data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {
+    fn handle_event(&mut self, data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {
         match event {
-            StateEvent::Input(InputEvent::ActionPressed { .. }) => Trans::Pop,
+            StateEvent::Input(InputEvent::ActionPressed { .. }) => {
+                let storage = data.world.read_resource::<AssetStorage<Source>>();
+                let sounds = data.world.read_resource::<Sounds>();
+                let output = data.world.try_fetch::<Output>();
+                play_select_option_sound(&sounds, &storage, &output);
+
+                Trans::Pop
+            },
             _ => Trans::None,
         }
     }
