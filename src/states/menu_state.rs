@@ -3,7 +3,9 @@ use amethyst::{
     audio::{AudioSink, DjSystem, output::{init_output, Output}},
     core::ArcThreadPool,
     ecs::prelude::*,
+    input::InputEvent,
     prelude::*,
+    shrev::EventChannel,
     ui::{Anchor, TtfFormat, UiText, UiTransform},
 };
 
@@ -83,6 +85,11 @@ fn initialise_menu(world: &mut World) {
     });
 }
 
+#[derive(Debug)]
+pub struct MenuEvent {
+    pub action_pressed: String,
+}
+
 #[derive(Default)]
 pub struct MenuState<'a, 'b> {
     pub dispatcher: Option<Dispatcher<'a, 'b>>,
@@ -90,21 +97,27 @@ pub struct MenuState<'a, 'b> {
 
 impl SimpleState for MenuState<'_, '_> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        let world = data.world;
+
         let mut dispatcher = DispatcherBuilder::new()
             .with(
                 DjSystem::new(|music: &mut Music| Some(music.opening.clone())),
                 "dj_system",
                 &[],
             )
-            .with(MenuSystem::new(data.world), "menu_system", &[])
-            .with_pool(data.world.read_resource::<ArcThreadPool>().deref().clone())
+            .with(MenuSystem::default(), "menu_system", &[])
+            .with_pool(world.read_resource::<ArcThreadPool>().deref().clone())
             .build();
-        dispatcher.setup(data.world);
+        dispatcher.setup(world);
         self.dispatcher = Some(dispatcher);
 
-        init_output(data.world);
-        initialise_audio(data.world);
-        initialise_menu(data.world);
+        init_output(world);
+        initialise_audio(world);
+        initialise_menu(world);
+
+        world.insert(EventChannel::<MenuEvent>::new());
+        let reader = world.fetch_mut::<EventChannel<MenuEvent>>().register_reader();
+        world.insert(reader);
     }
 
     fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
@@ -121,6 +134,8 @@ impl SimpleState for MenuState<'_, '_> {
 
     fn on_resume(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         initialise_menu(data.world);
+        let reader = data.world.fetch_mut::<EventChannel<MenuEvent>>().register_reader();
+        data.world.insert(reader);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
@@ -138,5 +153,20 @@ impl SimpleState for MenuState<'_, '_> {
         } else {
             Trans::None
         }
+    }
+
+    fn handle_event(&mut self, data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {
+        match event {
+            StateEvent::Input(InputEvent::ActionPressed(action)) => {
+                data.world
+                    .write_resource::<EventChannel<MenuEvent>>()
+                    .single_write(MenuEvent {
+                        action_pressed: action,
+                    });
+            },
+            _ => {},
+        }
+
+        Trans::None
     }
 }

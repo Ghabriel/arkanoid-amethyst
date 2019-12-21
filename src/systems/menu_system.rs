@@ -1,36 +1,24 @@
 use amethyst::{
     assets::AssetStorage,
-    audio::{ output::Output, Source },
-    ecs::{Read, ReadExpect, ReaderId, System, SystemData, World, WriteExpect, WriteStorage},
-    input::{InputEvent, StringBindings},
+    audio::{output::Output, Source},
+    ecs::{Read, ReadExpect, ReaderId, System, WriteExpect, WriteStorage},
     shrev::EventChannel,
-    ui::{UiText},
+    ui::UiText,
 };
 
 use crate::{
     audio::{play_select_option_sound, Sounds},
-    states::menu_state::Menu,
+    states::menu_state::{Menu, MenuEvent},
 };
 
-pub struct MenuSystem {
-    reader: ReaderId<InputEvent<StringBindings>>,
-}
-
-impl MenuSystem {
-    pub fn new(world: &mut World) -> Self {
-        <Self as System>::SystemData::setup(world);
-
-        MenuSystem {
-            reader: world.fetch_mut::<EventChannel<InputEvent<StringBindings>>>()
-                .register_reader(),
-        }
-    }
-}
+#[derive(Default)]
+pub struct MenuSystem;
 
 impl<'a> System<'a> for MenuSystem {
     type SystemData = (
         WriteStorage<'a, UiText>,
-        Read<'a, EventChannel<InputEvent<StringBindings>>>,
+        Read<'a, EventChannel<MenuEvent>>,
+        WriteExpect<'a, ReaderId<MenuEvent>>,
         WriteExpect<'a, Menu>,
         Read<'a, AssetStorage<Source>>,
         ReadExpect<'a, Sounds>,
@@ -40,40 +28,40 @@ impl<'a> System<'a> for MenuSystem {
     fn run(&mut self, (
         mut texts,
         event_channel,
+        mut event_reader,
         mut menu,
         storage,
         sounds,
         audio_output,
     ): Self::SystemData) {
-        for event in event_channel.read(&mut self.reader) {
-            if let InputEvent::ActionPressed(action) = event {
-                match action.as_str() {
-                    "pause" => {
-                        play_select_option_sound(&sounds, &storage, &audio_output);
-                        menu.selected = true;
-                    },
-                    "menu_up" | "menu_down" => {
-                        play_select_option_sound(&sounds, &storage, &audio_output);
+        for event in event_channel.read(&mut event_reader) {
+            let action = &event.action_pressed;
+            match action.as_str() {
+                "pause" => {
+                    play_select_option_sound(&sounds, &storage, &audio_output);
+                    menu.selected = true;
+                },
+                "menu_up" | "menu_down" => {
+                    play_select_option_sound(&sounds, &storage, &audio_output);
 
-                        let text = texts
-                            .get_mut(menu.items[menu.focused_item])
-                            .expect("Failed to retrieve old menu item");
-                        text.color = [1., 1., 1., 0.01];
+                    let text = texts
+                        .get_mut(menu.items[menu.focused_item])
+                        .expect("Failed to retrieve old menu item");
+                    text.color = [1., 1., 1., 0.01];
 
-                        let count_items = menu.items.len();
-                        if action == "menu_up" {
-                            menu.focused_item = (count_items + menu.focused_item - 1) % count_items;
-                        } else {
-                            menu.focused_item = (menu.focused_item + 1) % count_items;
-                        }
+                    let count_items = menu.items.len();
+                    if action == "menu_up" {
+                        menu.focused_item = (count_items + menu.focused_item - 1) % count_items;
+                    } else {
+                        menu.focused_item = (menu.focused_item + 1) % count_items;
+                    }
 
-                        let text = texts
-                            .get_mut(menu.items[menu.focused_item])
-                            .expect("Failed to retrieve new menu item");
-                        text.color = [1., 1., 1., 1.];
-                    },
-                    _ => {},
-                }
+                    let text = texts
+                        .get_mut(menu.items[menu.focused_item])
+                        .expect("Failed to retrieve new menu item");
+                    text.color = [1., 1., 1., 1.];
+                },
+                _ => {},
             }
         }
     }

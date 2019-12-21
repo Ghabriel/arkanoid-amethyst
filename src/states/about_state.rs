@@ -38,7 +38,7 @@ impl SimpleState for AboutState {
 
     fn handle_event(&mut self, _data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {
         match event {
-            StateEvent::Input(InputEvent::KeyPressed { .. }) => Trans::Pop,
+            StateEvent::Input(InputEvent::ActionPressed { .. }) => Trans::Pop,
             _ => Trans::None,
         }
     }
