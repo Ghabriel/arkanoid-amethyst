@@ -44,22 +44,25 @@ impl<'a> System<'a> for MenuSystem {
                 "menu_up" | "menu_down" => {
                     play_select_option_sound(&sounds, &storage, &audio_output);
 
-                    let text = texts
+                    texts
                         .get_mut(menu.items[menu.focused_item])
-                        .expect("Failed to retrieve old menu item");
-                    text.color = [1., 1., 1., 0.01];
+                        .expect("Failed to retrieve old menu item")
+                        .color = [1., 1., 1., 0.01];
 
-                    let count_items = menu.items.len();
-                    if action == "menu_up" {
-                        menu.focused_item = (count_items + menu.focused_item - 1) % count_items;
-                    } else {
-                        menu.focused_item = (menu.focused_item + 1) % count_items;
-                    }
+                    menu.focused_item = {
+                        let count_items = menu.items.len();
 
-                    let text = texts
+                        if action == "menu_up" {
+                            (count_items + menu.focused_item - 1) % count_items
+                        } else {
+                            (menu.focused_item + 1) % count_items
+                        }
+                    };
+
+                    texts
                         .get_mut(menu.items[menu.focused_item])
-                        .expect("Failed to retrieve new menu item");
-                    text.color = [1., 1., 1., 1.];
+                        .expect("Failed to retrieve new menu item")
+                        .color = [1., 1., 1., 1.];
                 },
                 _ => {},
             }
