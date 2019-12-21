@@ -15,7 +15,7 @@ use amethyst::{
 };
 
 use crate::{
-    audio::{play_bounce_sound, play_gameover_sound, Sounds},
+    audio::{play_sound, Sounds},
     config::GameConfig,
     entities::{
         ball::Ball,
@@ -104,17 +104,17 @@ impl BallBounceSystem {
         if (ball_x <= ball.radius && ball.velocity[0] < 0.0)
             || (ball_x >= config.arena.width - ball.radius && ball.velocity[0] > 0.0)
         {
-            play_bounce_sound(&sounds, &audio_storage, &audio_output);
+            play_sound(&sounds.bounce_sfx, &audio_storage, &audio_output);
             ball.velocity[0] = -ball.velocity[0];
         }
 
         if ball_y >= config.arena.height - ball.radius && ball.velocity[1] > 0.0 {
-            play_bounce_sound(&sounds, &audio_storage, &audio_output);
+            play_sound(&sounds.bounce_sfx, &audio_storage, &audio_output);
             ball.velocity[1] = -ball.velocity[1];
         }
 
         if ball_y <= ball.radius && ball.velocity[1] < 0.0 {
-            play_gameover_sound(&sounds, &audio_storage, &audio_output);
+            play_sound(&sounds.gameover_sfx, &audio_storage, &audio_output);
             level_data.state = LevelState::GameOver;
         }
     }
@@ -146,7 +146,7 @@ impl BallBounceSystem {
                 (x_left, y_top),
                 (x_left, y_bottom),
             ) && ball.velocity[0] > 0.0 {
-                play_bounce_sound(&sounds, &audio_storage, &audio_output);
+                play_sound(&sounds.bounce_sfx, &audio_storage, &audio_output);
                 ball.velocity[0] = -ball.velocity[0];
                 entities.delete(entity).expect("Failed to delete brick");
             }
@@ -157,7 +157,7 @@ impl BallBounceSystem {
                 (x_left, y_top),
                 (x_right, y_top),
             ) && ball.velocity[1] < 0.0 {
-                play_bounce_sound(&sounds, &audio_storage, &audio_output);
+                play_sound(&sounds.bounce_sfx, &audio_storage, &audio_output);
                 ball.velocity[1] = -ball.velocity[1];
                 entities.delete(entity).expect("Failed to delete brick");
             }
@@ -168,7 +168,7 @@ impl BallBounceSystem {
                 (x_left, y_bottom),
                 (x_right, y_bottom),
             ) && ball.velocity[1] > 0.0 {
-                play_bounce_sound(&sounds, &audio_storage, &audio_output);
+                play_sound(&sounds.bounce_sfx, &audio_storage, &audio_output);
                 ball.velocity[1] = -ball.velocity[1];
                 entities.delete(entity).expect("Failed to delete brick");
             }
@@ -179,7 +179,7 @@ impl BallBounceSystem {
                 (x_right, y_top),
                 (x_right, y_bottom),
             ) && ball.velocity[0] < 0.0 {
-                play_bounce_sound(&sounds, &audio_storage, &audio_output);
+                play_sound(&sounds.bounce_sfx, &audio_storage, &audio_output);
                 ball.velocity[0] = -ball.velocity[0];
                 entities.delete(entity).expect("Failed to delete brick");
             }
@@ -211,7 +211,7 @@ impl BallBounceSystem {
                 paddle_y + 0.5 * paddle.height + ball.radius,
             ) {
                 if ball.velocity[1] < 0.0 {
-                    play_bounce_sound(&sounds, &audio_storage, &audio_output);
+                    play_sound(&sounds.bounce_sfx, &audio_storage, &audio_output);
                     ball.velocity[1] = -ball.velocity[1];
                 }
             }

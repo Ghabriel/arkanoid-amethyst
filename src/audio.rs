@@ -68,43 +68,15 @@ pub fn initialise_audio(world: &mut World) {
     world.insert(music);
 }
 
-pub fn play_select_option_sound<O>(
-    sounds: &Sounds,
+pub fn play_sound<O>(
+    sound: &SourceHandle,
     storage: &AssetStorage<Source>,
     output: &Option<O>,
 )
     where
         O: Deref<Target = Output>,
 {
-    match (storage.get(&sounds.select_option_sfx), output) {
-        (Some(sound), Some(output)) => output.play_once(sound, 1.0),
-        _ => {},
-    }
-}
-
-pub fn play_bounce_sound<O>(
-    sounds: &Sounds,
-    storage: &AssetStorage<Source>,
-    output: &Option<O>,
-)
-    where
-        O: Deref<Target = Output>,
-{
-    match (storage.get(&sounds.bounce_sfx), output) {
-        (Some(sound), Some(output)) => output.play_once(sound, 1.0),
-        _ => {},
-    }
-}
-
-pub fn play_gameover_sound<O>(
-    sounds: &Sounds,
-    storage: &AssetStorage<Source>,
-    output: &Option<O>,
-)
-    where
-        O: Deref<Target = Output>,
-{
-    match (storage.get(&sounds.gameover_sfx), output) {
+    match (storage.get(&sound), output) {
         (Some(sound), Some(output)) => output.play_once(sound, 1.0),
         _ => {},
     }

@@ -8,7 +8,7 @@ use amethyst::{
 };
 
 use crate::{
-    audio::{play_select_option_sound, Sounds},
+    audio::{play_sound, Sounds},
     config::{ArenaConfig, GameConfig},
 };
 
@@ -44,7 +44,7 @@ impl SimpleState for AboutState {
                 let storage = data.world.read_resource::<AssetStorage<Source>>();
                 let sounds = data.world.read_resource::<Sounds>();
                 let output = data.world.try_fetch::<Output>();
-                play_select_option_sound(&sounds, &storage, &output);
+                play_sound(&sounds.select_option_sfx, &storage, &output);
 
                 Trans::Pop
             },
