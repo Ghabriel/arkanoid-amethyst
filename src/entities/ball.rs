@@ -21,11 +21,16 @@ impl Component for Ball {
 pub fn initialise_ball(world: &mut World, sprite_sheet: Handle<SpriteSheet>) {
     let (ball, transform, sprite_render) = {
         let config = world.read_resource::<GameConfig>();
+        let (sin, cos) = config.ball.initial_angle
+            .to_radians()
+            .sin_cos();
 
         let ball = Ball {
             radius: config.ball.radius,
-            velocity: [220.0, 130.0],
-            // velocity: [120.0, 40.0],
+            velocity: [
+                config.ball.initial_velocity * cos,
+                config.ball.initial_velocity * sin,
+            ],
         };
 
         let mut transform = Transform::default();

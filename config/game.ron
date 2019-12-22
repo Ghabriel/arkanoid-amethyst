@@ -4,6 +4,8 @@
         height: 600.0,
     ),
     ball: (
+        initial_angle: 30.0,
+        initial_velocity: 255.0,
         radius: 12.0,
     ),
     paddle: (

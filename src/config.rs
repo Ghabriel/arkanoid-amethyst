@@ -24,13 +24,17 @@ impl Default for ArenaConfig {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct BallConfig {
+    pub initial_angle: f32,
+    pub initial_velocity: f32,
     pub radius: f32,
 }
 
 impl Default for BallConfig {
     fn default() -> Self {
         BallConfig {
-            radius: 2.0,
+            initial_angle: 30.0,
+            initial_velocity: 255.0,
+            radius: 12.0,
         }
     }
 }
@@ -46,9 +50,9 @@ pub struct PaddleConfig {
 impl Default for PaddleConfig {
     fn default() -> Self {
         PaddleConfig {
-            width: 4.0,
-            height: 16.0,
-            margin: 0.0,
+            width: 170.0,
+            height: 12.0,
+            margin: 15.0,
         }
     }
 }

@@ -212,7 +212,14 @@ impl BallBounceSystem {
             ) {
                 if ball.velocity[1] < 0.0 {
                     play_sound(&sounds.bounce_sfx, &audio_storage, &audio_output);
-                    ball.velocity[1] = -ball.velocity[1];
+
+                    let ball_velocity = (ball.velocity[0].powi(2) + ball.velocity[1].powi(2)).sqrt();
+                    let dx = ball_x - paddle_x;
+                    let dy = ball_y - paddle_y;
+                    let angle = dy.atan2(dx);
+                    let (sin, cos) = angle.sin_cos();
+                    ball.velocity[0] = ball_velocity * cos;
+                    ball.velocity[1] = ball_velocity * sin;
                 }
             }
         }
