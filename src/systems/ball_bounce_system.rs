@@ -1,25 +1,27 @@
 use amethyst::{
     core::Transform,
     ecs::{
+        Entity,
         Join,
         Read,
         ReadStorage,
         System,
         world::EntitiesRes,
-        WriteExpect,
+        Write,
         WriteStorage,
     },
+    shrev::EventChannel,
 };
 
 use crate::{
     audio::{Sound, SoundKit},
     config::GameConfig,
     entities::{
-        ball::Ball,
+        ball::{Ball, change_speed},
         brick::{Brick, BrickKind},
         paddle::Paddle,
     },
-    states::game_state::{LevelData, LevelState},
+    states::game_state::GameEvent,
 };
 
 pub struct BallBounceSystem;
@@ -32,7 +34,7 @@ impl<'a> System<'a> for BallBounceSystem {
         ReadStorage<'a, Paddle>,
         Read<'a, EntitiesRes>,
         Read<'a, GameConfig>,
-        WriteExpect<'a, LevelData>,
+        Write<'a, EventChannel<GameEvent>>,
         SoundKit<'a>,
     );
 
@@ -43,16 +45,18 @@ impl<'a> System<'a> for BallBounceSystem {
         paddles,
         entities,
         config,
-        mut level_data,
+        mut game_event_channel,
         sound_kit,
     ): Self::SystemData) {
-        for (mut ball, transform) in (&mut balls, &transforms).join() {
+        for (entity, mut ball, transform) in (&entities, &mut balls, &transforms).join() {
             Self::handle_brick_collisions(
+                &entity,
                 &mut ball,
                 &transform,
                 &transforms,
                 &bricks,
                 &entities,
+                &mut game_event_channel,
                 &sound_kit,
             );
 
@@ -65,10 +69,11 @@ impl<'a> System<'a> for BallBounceSystem {
             );
 
             Self::handle_wall_collisions(
+                &entity,
                 &mut ball,
                 &transform,
+                &entities,
                 &config,
-                &mut level_data,
                 &sound_kit,
             );
         }
@@ -77,10 +82,11 @@ impl<'a> System<'a> for BallBounceSystem {
 
 impl BallBounceSystem {
     fn handle_wall_collisions(
+        ball_entity: &Entity,
         ball: &mut Ball,
         transform: &Transform,
+        entities: &Read<EntitiesRes>,
         config: &GameConfig,
-        level_data: &mut LevelData,
         sound_kit: &SoundKit,
     ) {
         let ball_x = transform.translation().x;
@@ -100,16 +106,18 @@ impl BallBounceSystem {
 
         if ball_y <= ball.radius && ball.velocity[1] < 0.0 {
             sound_kit.play_sound(Sound::GameOver);
-            level_data.state = LevelState::GameOver;
+            entities.delete(*ball_entity).expect("Failed to delete ball");
         }
     }
 
     fn handle_brick_collisions(
+        ball_entity: &Entity,
         ball: &mut Ball,
         transform: &Transform,
         transforms: &ReadStorage<Transform>,
         bricks: &ReadStorage<Brick>,
         entities: &Read<EntitiesRes>,
+        game_event_channel: &mut EventChannel<GameEvent>,
         sound_kit: &SoundKit,
     ) {
         let ball_x = transform.translation().x;
@@ -167,14 +175,9 @@ impl BallBounceSystem {
             if collided {
                 match brick.kind {
                     BrickKind::Standard => {},
-                    BrickKind::FastForward => {
-                        let ball_vx = ball.velocity[0];
-                        let ball_vy = ball.velocity[1];
-                        let angle = ball_vy.atan2(ball_vx);
-                        let (sin, cos) = angle.sin_cos();
-                        let ball_velocity = (ball_vx.powi(2) + ball_vy.powi(2)).sqrt();
-                        ball.velocity[0] = ball_velocity * 1.1 * cos;
-                        ball.velocity[1] = ball_velocity * 1.1 * sin;
+                    BrickKind::FastForward => change_speed(ball, |v| v * 1.1),
+                    BrickKind::BallSplit => {
+                        game_event_channel.single_write(GameEvent::BallSplit(*ball_entity));
                     },
                 }
 
@@ -209,9 +212,9 @@ impl BallBounceSystem {
                 if ball.velocity[1] < 0.0 {
                     sound_kit.play_sound(Sound::Bounce);
 
-                    let ball_velocity = (ball.velocity[0].powi(2) + ball.velocity[1].powi(2)).sqrt();
+                    let ball_velocity = ball.velocity[0].hypot(ball.velocity[1]);
                     let dx = ball_x - paddle_x;
-                    let dy = ball_y - paddle_y;
+                    let dy = ball_y - (paddle_y - 5.0);
                     let angle = dy.atan2(dx);
                     let (sin, cos) = angle.sin_cos();
                     ball.velocity[0] = ball_velocity * cos;

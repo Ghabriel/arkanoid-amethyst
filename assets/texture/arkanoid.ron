@@ -30,5 +30,12 @@
             width: 50,
             height: 20,
         ),
+        // Ball Split Brick
+        (
+            x: 0,
+            y: 52,
+            width: 50,
+            height: 20,
+        ),
     ],
 )

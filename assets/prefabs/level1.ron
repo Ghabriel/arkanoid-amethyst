@@ -27,7 +27,7 @@ Prefab(
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
+                brick: Brick(kind: BallSplit, width: 50.0, height: 20.0),
                 transform: (translation: (288.0, 508.0, 0.0)),
             )
         ),
@@ -51,7 +51,7 @@ Prefab(
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
+                brick: Brick(kind: BallSplit, width: 50.0, height: 20.0),
                 transform: (translation: (496.0, 508.0, 0.0)),
             )
         ),
@@ -171,7 +171,7 @@ Prefab(
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
+                brick: Brick(kind: BallSplit, width: 50.0, height: 20.0),
                 transform: (translation: (184.0, 464.0, 0.0)),
             )
         ),
@@ -195,7 +195,7 @@ Prefab(
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
+                brick: Brick(kind: BallSplit, width: 50.0, height: 20.0),
                 transform: (translation: (392.0, 464.0, 0.0)),
             )
         ),
@@ -219,7 +219,7 @@ Prefab(
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
+                brick: Brick(kind: BallSplit, width: 50.0, height: 20.0),
                 transform: (translation: (600.0, 464.0, 0.0)),
             )
         ),

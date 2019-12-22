@@ -19,6 +19,7 @@ pub struct BrickPrefab {
 pub enum BrickKind {
     Standard,
     FastForward,
+    BallSplit,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PrefabData)]
