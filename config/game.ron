@@ -5,7 +5,7 @@
     ),
     ball: (
         initial_angle: 30.0,
-        initial_velocity: 255.0,
+        initial_velocity: 350.0,
         radius: 12.0,
     ),
     paddle: (
