@@ -17,7 +17,7 @@ use crate::{
     audio::{Sound, SoundKit},
     config::GameConfig,
     entities::{
-        ball::{Ball, change_speed},
+        ball::Ball,
         brick::{Brick, BrickKind},
         paddle::Paddle,
     },
@@ -175,7 +175,9 @@ impl BallBounceSystem {
             if collided {
                 match brick.kind {
                     BrickKind::Standard => {},
-                    BrickKind::FastForward => change_speed(ball, |v| v * 1.1),
+                    BrickKind::FastForward => {
+                        game_event_channel.single_write(GameEvent::FastForward);
+                    },
                     BrickKind::BallSplit => {
                         game_event_channel.single_write(GameEvent::BallSplit(*ball_entity));
                     },

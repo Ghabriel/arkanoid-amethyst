@@ -20,7 +20,7 @@ use crate::{
     audio::Music,
     config::GameConfig,
     entities::{
-        ball::{Ball, change_direction, initialise_ball},
+        ball::{Ball, change_direction, change_speed, initialise_ball},
         brick::{Brick, BrickKind, BrickPrefab},
         paddle::initialise_paddle,
     },
@@ -88,6 +88,7 @@ pub enum LevelState {
 
 #[derive(Clone, Debug)]
 pub enum GameEvent {
+    FastForward,
     BallSplit(Entity),
 }
 
@@ -174,6 +175,13 @@ impl GameState<'_, '_> {
 
         for event in events {
             match event {
+                GameEvent::FastForward => {
+                    let mut ball_storage = world.write_storage::<Ball>();
+
+                    for ball in (&mut ball_storage).join() {
+                        change_speed(ball, |v| v * 1.1);
+                    }
+                }
                 GameEvent::BallSplit(old_entity) => {
                     let new_entity = initialise_ball(world, self.sprite_sheet.clone().unwrap());
 
@@ -181,11 +189,15 @@ impl GameState<'_, '_> {
                     let mut old_ball = ball_storage
                         .get_mut(old_entity)
                         .expect("Failed to retrieve old ball");
+                    let old_velocity = old_ball.velocity.clone();
                     change_direction(&mut old_ball, |angle| angle + 15f32.to_radians());
 
                     let mut new_ball = ball_storage
                         .get_mut(new_entity)
                         .expect("Failed to retrieve new ball");
+                    new_ball.velocity[0] = old_velocity[0];
+                    new_ball.velocity[1] = old_velocity[1];
+
                     change_direction(&mut new_ball, |angle| angle - 15f32.to_radians());
 
                     let mut transform_storage = world.write_storage::<Transform>();
