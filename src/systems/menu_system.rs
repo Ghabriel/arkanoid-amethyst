@@ -7,7 +7,7 @@ use amethyst::{
 };
 
 use crate::{
-    audio::{play_sound, Sounds},
+    audio::{play_sound, Sound, SoundStorage},
     states::menu_state::{Menu, MenuEvent},
 };
 
@@ -21,7 +21,7 @@ impl<'a> System<'a> for MenuSystem {
         WriteExpect<'a, ReaderId<MenuEvent>>,
         WriteExpect<'a, Menu>,
         Read<'a, AssetStorage<Source>>,
-        ReadExpect<'a, Sounds>,
+        ReadExpect<'a, SoundStorage>,
         Option<Read<'a, Output>>,
     );
 
@@ -38,11 +38,11 @@ impl<'a> System<'a> for MenuSystem {
             let action = &event.action_pressed;
             match action.as_str() {
                 "pause" => {
-                    play_sound(&sounds.select_option_sfx, &storage, &audio_output);
+                    play_sound(Sound::SelectOption, &sounds, &storage, &audio_output);
                     menu.selected = true;
                 },
                 "menu_up" | "menu_down" => {
-                    play_sound(&sounds.select_option_sfx, &storage, &audio_output);
+                    play_sound(Sound::SelectOption, &sounds, &storage, &audio_output);
 
                     texts
                         .get_mut(menu.items[menu.focused_item])

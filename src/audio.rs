@@ -11,6 +11,7 @@ use amethyst::{
 };
 
 use std::{
+    collections::HashMap,
     iter::Cycle,
     ops::Deref,
     vec::IntoIter,
@@ -31,14 +32,19 @@ pub struct Music {
     pub in_game: Cycle<IntoIter<SourceHandle>>,
 }
 
-pub struct Sounds {
-    pub select_option_sfx: SourceHandle,
-    pub bounce_sfx: SourceHandle,
-    pub gameover_sfx: SourceHandle,
+#[derive(Eq, Hash, PartialEq)]
+pub enum Sound {
+    Bounce,
+    GameOver,
+    SelectOption,
+}
+
+pub struct SoundStorage {
+    sounds: HashMap<Sound, SourceHandle>,
 }
 
 pub fn initialise_audio(world: &mut World) {
-    let (sound_effects, music) = {
+    let (sound_storage, music) = {
         let loader = world.read_resource::<Loader>();
 
         let opening = loader.load(OPENING_TRACK, OggFormat, (), &world.read_resource());
@@ -55,28 +61,40 @@ pub fn initialise_audio(world: &mut World) {
             in_game,
         };
 
-        let sound_effects = Sounds {
-            select_option_sfx: loader.load(SELECT_OPTION_SOUND, WavFormat, (), &world.read_resource()),
-            bounce_sfx: loader.load(BOUNCE_SOUND, OggFormat, (), &world.read_resource()),
-            gameover_sfx: loader.load(GAMEOVER_SOUND, OggFormat, (), &world.read_resource()),
-        };
+        let mut sound_storage = SoundStorage { sounds: HashMap::new() };
+        sound_storage.sounds.insert(
+            Sound::Bounce,
+            loader.load(BOUNCE_SOUND, OggFormat, (), &world.read_resource()),
+        );
 
-        (sound_effects, music)
+        sound_storage.sounds.insert(
+            Sound::GameOver,
+            loader.load(GAMEOVER_SOUND, OggFormat, (), &world.read_resource()),
+        );
+
+        sound_storage.sounds.insert(
+            Sound::SelectOption,
+            loader.load(SELECT_OPTION_SOUND, WavFormat, (), &world.read_resource()),
+        );
+
+        (sound_storage, music)
     };
 
-    world.insert(sound_effects);
+    world.insert(sound_storage);
     world.insert(music);
 }
 
 pub fn play_sound<O>(
-    sound: &SourceHandle,
-    storage: &AssetStorage<Source>,
+    sound: Sound,
+    sound_storage: &SoundStorage,
+    asset_storage: &AssetStorage<Source>,
     output: &Option<O>,
 )
     where
         O: Deref<Target = Output>,
 {
-    match (storage.get(&sound), output) {
+    let handle = sound_storage.sounds.get(&sound).unwrap();
+    match (asset_storage.get(&handle), output) {
         (Some(sound), Some(output)) => output.play_once(sound, 1.0),
         _ => {},
     }

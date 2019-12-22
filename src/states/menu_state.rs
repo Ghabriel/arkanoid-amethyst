@@ -1,6 +1,6 @@
 use amethyst::{
     assets::Loader,
-    audio::{AudioSink, DjSystem, output::{init_output, Output}},
+    audio::{AudioSink, DjSystem, output::init_output},
     core::ArcThreadPool,
     ecs::prelude::*,
     input::InputEvent,
@@ -123,7 +123,6 @@ impl SimpleState for MenuState<'_, '_> {
 
     fn on_stop(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         data.world.remove::<AudioSink>();
-        data.world.remove::<Output>();
     }
 
     fn on_pause(&mut self, data: StateData<'_, GameData<'_, '_>>) {
