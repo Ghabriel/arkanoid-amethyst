@@ -55,6 +55,14 @@ impl<'a> SoundKit<'a> {
     pub fn from_world(world: &World) -> SoundKit {
         SoundKit::fetch(world)
     }
+
+    pub fn play_sound(&self, sound: Sound) {
+        let handle = self.sound_storage.sounds.get(&sound).unwrap();
+        match (self.asset_storage.get(&handle), &self.output) {
+            (Some(sound), Some(output)) => output.play_once(sound, 1.0),
+            _ => {},
+        }
+    }
 }
 
 impl<'a> SystemData<'a> for SoundKit<'a> {
@@ -142,17 +150,4 @@ pub fn initialise_audio(world: &mut World) {
 
     world.insert(sound_storage);
     world.insert(music);
-}
-
-pub fn play_sound(sound: Sound, sound_kit: &SoundKit) {
-    let SoundKit {
-        asset_storage,
-        sound_storage,
-        output,
-    } = sound_kit;
-    let handle = sound_storage.sounds.get(&sound).unwrap();
-    match (asset_storage.get(&handle), output) {
-        (Some(sound), Some(output)) => output.play_once(sound, 1.0),
-        _ => {},
-    }
 }

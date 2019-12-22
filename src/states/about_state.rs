@@ -7,7 +7,7 @@ use amethyst::{
 };
 
 use crate::{
-    audio::{play_sound, Sound, SoundKit},
+    audio::{Sound, SoundKit},
     config::{ArenaConfig, GameConfig},
 };
 
@@ -40,7 +40,8 @@ impl SimpleState for AboutState {
     fn handle_event(&mut self, data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {
         match event {
             StateEvent::Input(InputEvent::ActionPressed { .. }) => {
-                play_sound(Sound::SelectOption, &SoundKit::from_world(&data.world));
+                &SoundKit::from_world(&data.world)
+                    .play_sound(Sound::SelectOption);
 
                 Trans::Pop
             },
