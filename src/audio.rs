@@ -7,13 +7,19 @@ use amethyst::{
         output::Output,
         WavFormat,
     },
-    ecs::{World, WorldExt},
+    ecs::{
+        Read,
+        ReadExpect,
+        SystemData,
+        World,
+        WorldExt,
+    },
+    shred::ResourceId,
 };
 
 use std::{
     collections::HashMap,
     iter::Cycle,
-    ops::Deref,
     vec::IntoIter,
 };
 
@@ -37,6 +43,60 @@ pub enum Sound {
     Bounce,
     GameOver,
     SelectOption,
+}
+
+pub struct SoundKit<'a> {
+    asset_storage: Read<'a, AssetStorage<Source>>,
+    sound_storage: ReadExpect<'a, SoundStorage>,
+    output: Option<Read<'a, Output>>,
+}
+
+impl<'a> SoundKit<'a> {
+    pub fn from_world(world: &World) -> SoundKit {
+        SoundKit::fetch(world)
+    }
+}
+
+impl<'a> SystemData<'a> for SoundKit<'a> {
+    fn setup(world: &mut World) {
+        <Read<'a, AssetStorage<Source>> as SystemData>::setup(world);
+        <ReadExpect<'a, SoundStorage> as SystemData>::setup(world);
+        <Option<Read<'a, Output>> as SystemData>::setup(world);
+    }
+
+    fn fetch(world: &'a World) -> Self {
+        SoundKit {
+            asset_storage: <Read<'a, AssetStorage<Source>> as SystemData<'a>>::fetch(world),
+            sound_storage: <ReadExpect<'a, SoundStorage> as SystemData<'a>>::fetch(world),
+            output: <Option<Read<'a, Output>> as SystemData<'a>>::fetch(world),
+        }
+    }
+
+    fn reads() -> Vec<ResourceId> {
+        let mut r = Vec::new();
+
+        let mut reads = <Read<'a, AssetStorage<Source>> as SystemData>::reads();
+        r.append(&mut reads);
+        let mut reads = <ReadExpect<'a, SoundStorage> as SystemData>::reads();
+        r.append(&mut reads);
+        let mut reads = <Option<Read<'a, Output>> as SystemData>::reads();
+        r.append(&mut reads);
+
+        r
+    }
+
+    fn writes() -> Vec<ResourceId> {
+        let mut r = Vec::new();
+
+        let mut writes = <Read<'a, AssetStorage<Source>> as SystemData>::writes();
+        r.append(&mut writes);
+        let mut writes = <ReadExpect<'a, SoundStorage> as SystemData>::writes();
+        r.append(&mut writes);
+        let mut writes = <Option<Read<'a, Output>> as SystemData>::writes();
+        r.append(&mut writes);
+
+        r
+    }
 }
 
 pub struct SoundStorage {
@@ -84,15 +144,12 @@ pub fn initialise_audio(world: &mut World) {
     world.insert(music);
 }
 
-pub fn play_sound<O>(
-    sound: Sound,
-    sound_storage: &SoundStorage,
-    asset_storage: &AssetStorage<Source>,
-    output: &Option<O>,
-)
-    where
-        O: Deref<Target = Output>,
-{
+pub fn play_sound(sound: Sound, sound_kit: &SoundKit) {
+    let SoundKit {
+        asset_storage,
+        sound_storage,
+        output,
+    } = sound_kit;
     let handle = sound_storage.sounds.get(&sound).unwrap();
     match (asset_storage.get(&handle), output) {
         (Some(sound), Some(output)) => output.play_once(sound, 1.0),

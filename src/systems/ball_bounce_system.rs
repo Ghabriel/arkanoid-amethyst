@@ -1,11 +1,8 @@
 use amethyst::{
-    assets::AssetStorage,
-    audio::{output::Output, Source},
     core::Transform,
     ecs::{
         Join,
         Read,
-        ReadExpect,
         ReadStorage,
         System,
         world::EntitiesRes,
@@ -15,7 +12,7 @@ use amethyst::{
 };
 
 use crate::{
-    audio::{play_sound, Sound, SoundStorage},
+    audio::{play_sound, Sound, SoundKit},
     config::GameConfig,
     entities::{
         ball::Ball,
@@ -36,9 +33,7 @@ impl<'a> System<'a> for BallBounceSystem {
         Read<'a, EntitiesRes>,
         Read<'a, GameConfig>,
         WriteExpect<'a, LevelData>,
-        Read<'a, AssetStorage<Source>>,
-        ReadExpect<'a, SoundStorage>,
-        Option<Read<'a, Output>>,
+        SoundKit<'a>,
     );
 
     fn run(&mut self, (
@@ -49,9 +44,7 @@ impl<'a> System<'a> for BallBounceSystem {
         entities,
         config,
         mut level_data,
-        audio_storage,
-        sounds,
-        audio_output,
+        sound_kit,
     ): Self::SystemData) {
         for (mut ball, transform) in (&mut balls, &transforms).join() {
             Self::handle_brick_collisions(
@@ -60,9 +53,7 @@ impl<'a> System<'a> for BallBounceSystem {
                 &transforms,
                 &bricks,
                 &entities,
-                &audio_storage,
-                &sounds,
-                &audio_output,
+                &sound_kit,
             );
 
             Self::handle_paddle_collisions(
@@ -70,9 +61,7 @@ impl<'a> System<'a> for BallBounceSystem {
                 &transform,
                 &transforms,
                 &paddles,
-                &audio_storage,
-                &sounds,
-                &audio_output,
+                &sound_kit,
             );
 
             Self::handle_wall_collisions(
@@ -80,9 +69,7 @@ impl<'a> System<'a> for BallBounceSystem {
                 &transform,
                 &config,
                 &mut level_data,
-                &audio_storage,
-                &sounds,
-                &audio_output,
+                &sound_kit,
             );
         }
     }
@@ -94,9 +81,7 @@ impl BallBounceSystem {
         transform: &Transform,
         config: &GameConfig,
         level_data: &mut LevelData,
-        audio_storage: &AssetStorage<Source>,
-        sounds: &SoundStorage,
-        audio_output: &Option<Read<'_, Output>>,
+        sound_kit: &SoundKit,
     ) {
         let ball_x = transform.translation().x;
         let ball_y = transform.translation().y;
@@ -104,17 +89,17 @@ impl BallBounceSystem {
         if (ball_x <= ball.radius && ball.velocity[0] < 0.0)
             || (ball_x >= config.arena.width - ball.radius && ball.velocity[0] > 0.0)
         {
-            play_sound(Sound::Bounce, &sounds, &audio_storage, &audio_output);
+            play_sound(Sound::Bounce, &sound_kit);
             ball.velocity[0] = -ball.velocity[0];
         }
 
         if ball_y >= config.arena.height - ball.radius && ball.velocity[1] > 0.0 {
-            play_sound(Sound::Bounce, &sounds, &audio_storage, &audio_output);
+            play_sound(Sound::Bounce, &sound_kit);
             ball.velocity[1] = -ball.velocity[1];
         }
 
         if ball_y <= ball.radius && ball.velocity[1] < 0.0 {
-            play_sound(Sound::GameOver, &sounds, &audio_storage, &audio_output);
+            play_sound(Sound::GameOver, &sound_kit);
             level_data.state = LevelState::GameOver;
         }
     }
@@ -125,9 +110,8 @@ impl BallBounceSystem {
         transforms: &ReadStorage<Transform>,
         bricks: &ReadStorage<Brick>,
         entities: &Read<EntitiesRes>,
-        audio_storage: &AssetStorage<Source>,
-        sounds: &SoundStorage,
-        audio_output: &Option<Read<'_, Output>>,
+        sound_kit: &SoundKit,
+
     ) {
         let ball_x = transform.translation().x;
         let ball_y = transform.translation().y;
@@ -146,7 +130,7 @@ impl BallBounceSystem {
                 (x_left, y_top),
                 (x_left, y_bottom),
             ) && ball.velocity[0] > 0.0 {
-                play_sound(Sound::Bounce, &sounds, &audio_storage, &audio_output);
+                play_sound(Sound::Bounce, &sound_kit);
                 ball.velocity[0] = -ball.velocity[0];
                 entities.delete(entity).expect("Failed to delete brick");
             }
@@ -157,7 +141,7 @@ impl BallBounceSystem {
                 (x_left, y_top),
                 (x_right, y_top),
             ) && ball.velocity[1] < 0.0 {
-                play_sound(Sound::Bounce, &sounds, &audio_storage, &audio_output);
+                play_sound(Sound::Bounce, &sound_kit);
                 ball.velocity[1] = -ball.velocity[1];
                 entities.delete(entity).expect("Failed to delete brick");
             }
@@ -168,7 +152,7 @@ impl BallBounceSystem {
                 (x_left, y_bottom),
                 (x_right, y_bottom),
             ) && ball.velocity[1] > 0.0 {
-                play_sound(Sound::Bounce, &sounds, &audio_storage, &audio_output);
+                play_sound(Sound::Bounce, &sound_kit);
                 ball.velocity[1] = -ball.velocity[1];
                 entities.delete(entity).expect("Failed to delete brick");
             }
@@ -179,7 +163,7 @@ impl BallBounceSystem {
                 (x_right, y_top),
                 (x_right, y_bottom),
             ) && ball.velocity[0] < 0.0 {
-                play_sound(Sound::Bounce, &sounds, &audio_storage, &audio_output);
+                play_sound(Sound::Bounce, &sound_kit);
                 ball.velocity[0] = -ball.velocity[0];
                 entities.delete(entity).expect("Failed to delete brick");
             }
@@ -191,9 +175,7 @@ impl BallBounceSystem {
         transform: &Transform,
         transforms: &ReadStorage<Transform>,
         paddles: &ReadStorage<Paddle>,
-        audio_storage: &AssetStorage<Source>,
-        sounds: &SoundStorage,
-        audio_output: &Option<Read<'_, Output>>,
+        sound_kit: &SoundKit,
     ) {
         let ball_x = transform.translation().x;
         let ball_y = transform.translation().y;
@@ -211,7 +193,7 @@ impl BallBounceSystem {
                 paddle_y + 0.5 * paddle.height + ball.radius,
             ) {
                 if ball.velocity[1] < 0.0 {
-                    play_sound(Sound::Bounce, &sounds, &audio_storage, &audio_output);
+                    play_sound(Sound::Bounce, &sound_kit);
 
                     let ball_velocity = (ball.velocity[0].powi(2) + ball.velocity[1].powi(2)).sqrt();
                     let dx = ball_x - paddle_x;

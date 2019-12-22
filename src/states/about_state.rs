@@ -1,6 +1,5 @@
 use amethyst::{
-    assets::{AssetStorage, Loader},
-    audio::{output::Output, Source},
+    assets::Loader,
     ecs::Entity,
     input::InputEvent,
     prelude::*,
@@ -8,7 +7,7 @@ use amethyst::{
 };
 
 use crate::{
-    audio::{play_sound, Sound, SoundStorage},
+    audio::{play_sound, Sound, SoundKit},
     config::{ArenaConfig, GameConfig},
 };
 
@@ -41,10 +40,7 @@ impl SimpleState for AboutState {
     fn handle_event(&mut self, data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {
         match event {
             StateEvent::Input(InputEvent::ActionPressed { .. }) => {
-                let storage = data.world.read_resource::<AssetStorage<Source>>();
-                let sounds = data.world.read_resource::<SoundStorage>();
-                let output = data.world.try_fetch::<Output>();
-                play_sound(Sound::SelectOption, &sounds, &storage, &output);
+                play_sound(Sound::SelectOption, &SoundKit::from_world(&data.world));
 
                 Trans::Pop
             },

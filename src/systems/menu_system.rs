@@ -1,13 +1,11 @@
 use amethyst::{
-    assets::AssetStorage,
-    audio::{output::Output, Source},
-    ecs::{Read, ReadExpect, ReaderId, System, WriteExpect, WriteStorage},
+    ecs::{Read, ReaderId, System, WriteExpect, WriteStorage},
     shrev::EventChannel,
     ui::UiText,
 };
 
 use crate::{
-    audio::{play_sound, Sound, SoundStorage},
+    audio::{play_sound, Sound, SoundKit},
     states::menu_state::{Menu, MenuEvent},
 };
 
@@ -20,9 +18,7 @@ impl<'a> System<'a> for MenuSystem {
         Read<'a, EventChannel<MenuEvent>>,
         WriteExpect<'a, ReaderId<MenuEvent>>,
         WriteExpect<'a, Menu>,
-        Read<'a, AssetStorage<Source>>,
-        ReadExpect<'a, SoundStorage>,
-        Option<Read<'a, Output>>,
+        SoundKit<'a>,
     );
 
     fn run(&mut self, (
@@ -30,19 +26,17 @@ impl<'a> System<'a> for MenuSystem {
         event_channel,
         mut event_reader,
         mut menu,
-        storage,
-        sounds,
-        audio_output,
+        sound_kit,
     ): Self::SystemData) {
         for event in event_channel.read(&mut event_reader) {
             let action = &event.action_pressed;
             match action.as_str() {
                 "pause" => {
-                    play_sound(Sound::SelectOption, &sounds, &storage, &audio_output);
+                    play_sound(Sound::SelectOption, &sound_kit);
                     menu.selected = true;
                 },
                 "menu_up" | "menu_down" => {
-                    play_sound(Sound::SelectOption, &sounds, &storage, &audio_output);
+                    play_sound(Sound::SelectOption, &sound_kit);
 
                     texts
                         .get_mut(menu.items[menu.focused_item])
