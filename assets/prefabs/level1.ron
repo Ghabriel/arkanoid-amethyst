@@ -3,235 +3,235 @@ Prefab(
     entities: [
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (80.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (132.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (184.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (236.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (288.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (340.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (392.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (444.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (496.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (548.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (600.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (652.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (704.0, 508.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (80.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: FastForward, width: 50.0, height: 20.0),
                 transform: (translation: (132.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (184.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: FastForward, width: 50.0, height: 20.0),
                 transform: (translation: (236.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (288.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: FastForward, width: 50.0, height: 20.0),
                 transform: (translation: (340.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (392.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: FastForward, width: 50.0, height: 20.0),
                 transform: (translation: (444.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (496.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: FastForward, width: 50.0, height: 20.0),
                 transform: (translation: (548.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (600.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: FastForward, width: 50.0, height: 20.0),
                 transform: (translation: (652.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (704.0, 486.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (80.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (132.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (184.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (236.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (288.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (340.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (392.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (444.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (496.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (548.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (600.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (652.0, 464.0, 0.0)),
             )
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(width: 50.0, height: 20.0),
+                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
                 transform: (translation: (704.0, 464.0, 0.0)),
             )
         ),

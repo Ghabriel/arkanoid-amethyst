@@ -2,21 +2,31 @@
     texture_width: 170,
     texture_height: 200,
     sprites: [
+        // Paddle
         (
             x: 0,
             y: 0,
             width: 170,
             height: 12,
         ),
+        // Ball
         (
-            x: 0,
+            x: 50,
             y: 12,
             width: 24,
             height: 24,
         ),
+        // Standard Brick
         (
-            x: 24,
+            x: 0,
             y: 12,
+            width: 50,
+            height: 20,
+        ),
+        // Fast Forward Brick
+        (
+            x: 0,
+            y: 32,
             width: 50,
             height: 20,
         ),

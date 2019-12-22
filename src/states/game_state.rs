@@ -20,7 +20,7 @@ use crate::{
     config::GameConfig,
     entities::{
         ball::initialise_ball,
-        brick::{Brick, BrickPrefab},
+        brick::{Brick, BrickKind, BrickPrefab},
         paddle::initialise_paddle,
     },
     states::PauseState,
@@ -163,10 +163,15 @@ impl SimpleState for GameState<'_, '_> {
                     ReadStorage<Brick>,
                     WriteStorage<SpriteRender>,
                 )| {
-                    for (entity, _) in (&entities, &bricks).join() {
+                    for (entity, brick) in (&entities, &bricks).join() {
+                        let sprite_number = match brick.kind {
+                            BrickKind::Standard => 2,
+                            BrickKind::FastForward => 3,
+                        };
+
                         let sprite_render = SpriteRender {
                             sprite_sheet: self.sprite_sheet.clone().unwrap(),
-                            sprite_number: 2,
+                            sprite_number,
                         };
 
                         sprite_renders

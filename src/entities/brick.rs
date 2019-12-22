@@ -15,10 +15,17 @@ pub struct BrickPrefab {
     // SpriteRender can't be present in a prefab, so it's added later, in GameState.
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub enum BrickKind {
+    Standard,
+    FastForward,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize, PrefabData)]
 #[prefab(Component)]
 #[serde(deny_unknown_fields)]
 pub struct Brick {
+    pub kind: BrickKind,
     pub width: f32,
     pub height: f32,
 }

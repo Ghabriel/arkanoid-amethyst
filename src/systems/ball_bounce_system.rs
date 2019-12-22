@@ -16,7 +16,7 @@ use crate::{
     config::GameConfig,
     entities::{
         ball::Ball,
-        brick::Brick,
+        brick::{Brick, BrickKind},
         paddle::Paddle,
     },
     states::game_state::{LevelData, LevelState},
@@ -111,7 +111,6 @@ impl BallBounceSystem {
         bricks: &ReadStorage<Brick>,
         entities: &Read<EntitiesRes>,
         sound_kit: &SoundKit,
-
     ) {
         let ball_x = transform.translation().x;
         let ball_y = transform.translation().y;
@@ -123,6 +122,7 @@ impl BallBounceSystem {
             let x_right = brick_x + 0.5 * brick.width;
             let y_bottom = brick_y - 0.5 * brick.height;
             let y_top = brick_y + 0.5 * brick.height;
+            let mut collided = false;
 
             if circle_line_segment_collision(
                 (ball_x, ball_y),
@@ -130,9 +130,8 @@ impl BallBounceSystem {
                 (x_left, y_top),
                 (x_left, y_bottom),
             ) && ball.velocity[0] > 0.0 {
-                sound_kit.play_sound(Sound::Bounce);
                 ball.velocity[0] = -ball.velocity[0];
-                entities.delete(entity).expect("Failed to delete brick");
+                collided = true;
             }
 
             if circle_line_segment_collision(
@@ -141,9 +140,8 @@ impl BallBounceSystem {
                 (x_left, y_top),
                 (x_right, y_top),
             ) && ball.velocity[1] < 0.0 {
-                sound_kit.play_sound(Sound::Bounce);
                 ball.velocity[1] = -ball.velocity[1];
-                entities.delete(entity).expect("Failed to delete brick");
+                collided = true;
             }
 
             if circle_line_segment_collision(
@@ -152,9 +150,8 @@ impl BallBounceSystem {
                 (x_left, y_bottom),
                 (x_right, y_bottom),
             ) && ball.velocity[1] > 0.0 {
-                sound_kit.play_sound(Sound::Bounce);
                 ball.velocity[1] = -ball.velocity[1];
-                entities.delete(entity).expect("Failed to delete brick");
+                collided = true;
             }
 
             if circle_line_segment_collision(
@@ -163,8 +160,25 @@ impl BallBounceSystem {
                 (x_right, y_top),
                 (x_right, y_bottom),
             ) && ball.velocity[0] < 0.0 {
-                sound_kit.play_sound(Sound::Bounce);
                 ball.velocity[0] = -ball.velocity[0];
+                collided = true;
+            }
+
+            if collided {
+                match brick.kind {
+                    BrickKind::Standard => {},
+                    BrickKind::FastForward => {
+                        let ball_vx = ball.velocity[0];
+                        let ball_vy = ball.velocity[1];
+                        let angle = ball_vy.atan2(ball_vx);
+                        let (sin, cos) = angle.sin_cos();
+                        let ball_velocity = (ball_vx.powi(2) + ball_vy.powi(2)).sqrt();
+                        ball.velocity[0] = ball_velocity * 1.1 * cos;
+                        ball.velocity[1] = ball_velocity * 1.1 * sin;
+                    },
+                }
+
+                sound_kit.play_sound(Sound::Bounce);
                 entities.delete(entity).expect("Failed to delete brick");
             }
         }
