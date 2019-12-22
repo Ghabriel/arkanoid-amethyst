@@ -83,12 +83,9 @@ impl<'a> SystemData<'a> for SoundKit<'a> {
     fn reads() -> Vec<ResourceId> {
         let mut r = Vec::new();
 
-        let mut reads = <Read<'a, AssetStorage<Source>> as SystemData>::reads();
-        r.append(&mut reads);
-        let mut reads = <ReadExpect<'a, SoundStorage> as SystemData>::reads();
-        r.append(&mut reads);
-        let mut reads = <Option<Read<'a, Output>> as SystemData>::reads();
-        r.append(&mut reads);
+        r.append(&mut <Read<'a, AssetStorage<Source>> as SystemData>::reads());
+        r.append(&mut <ReadExpect<'a, SoundStorage> as SystemData>::reads());
+        r.append(&mut <Option<Read<'a, Output>> as SystemData>::reads());
 
         r
     }
@@ -96,12 +93,9 @@ impl<'a> SystemData<'a> for SoundKit<'a> {
     fn writes() -> Vec<ResourceId> {
         let mut r = Vec::new();
 
-        let mut writes = <Read<'a, AssetStorage<Source>> as SystemData>::writes();
-        r.append(&mut writes);
-        let mut writes = <ReadExpect<'a, SoundStorage> as SystemData>::writes();
-        r.append(&mut writes);
-        let mut writes = <Option<Read<'a, Output>> as SystemData>::writes();
-        r.append(&mut writes);
+        r.append(&mut <Read<'a, AssetStorage<Source>> as SystemData>::writes());
+        r.append(&mut <ReadExpect<'a, SoundStorage> as SystemData>::writes());
+        r.append(&mut <Option<Read<'a, Output>> as SystemData>::writes());
 
         r
     }
