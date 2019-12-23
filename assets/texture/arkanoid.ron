@@ -37,5 +37,19 @@
             width: 50,
             height: 20,
         ),
+        // Piercing Ball Brick
+        (
+            x: 0,
+            y: 72,
+            width: 50,
+            height: 20,
+        ),
+        // Ball: piercing mode
+        (
+            x: 74,
+            y: 12,
+            width: 24,
+            height: 24,
+        ),
     ],
 )

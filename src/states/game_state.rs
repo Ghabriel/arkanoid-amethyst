@@ -34,6 +34,7 @@ use crate::{
         powerups::{
             BallSplitSystem,
             FastForwardSystem,
+            PiercingBallSystem,
         },
     },
 };
@@ -94,6 +95,7 @@ pub enum LevelState {
 pub enum GameEvent {
     FastForward,
     BallSplit(Entity),
+    PiercingBall(Entity),
 }
 
 #[derive(Default)]
@@ -152,6 +154,7 @@ impl GameState<'_, '_> {
                         BrickKind::Standard => 2,
                         BrickKind::FastForward => 3,
                         BrickKind::BallSplit => 4,
+                        BrickKind::PiercingBall => 5,
                     };
 
                     let sprite_render = SpriteRender {
@@ -186,6 +189,7 @@ impl SimpleState for GameState<'_, '_> {
             .with(GameoverSystem, "gameover_system", &["ball_bounce_system"])
             .with(BallSplitSystem::new(data.world), "ball_split_system", &["ball_bounce_system"])
             .with(FastForwardSystem::new(data.world), "fast_forward_system", &["ball_bounce_system"])
+            .with(PiercingBallSystem::new(data.world), "piercing_ball_system", &["ball_bounce_system"])
             .with(PaddleMovementSystem, "paddle_movement_system", &[])
             .with_pool(data.world.read_resource::<ArcThreadPool>().deref().clone())
             .build();

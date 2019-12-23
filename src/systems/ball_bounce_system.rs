@@ -22,7 +22,20 @@ use crate::{
         paddle::Paddle,
     },
     states::game_state::GameEvent,
+    systems::powerups::piercing_ball_system::PiercingBallTimer,
 };
+
+enum CollisionAxis {
+    Horizontal,
+    Vertical,
+}
+
+fn process_collision(ball: &mut Ball, collision_axis: CollisionAxis) {
+    match collision_axis {
+        CollisionAxis::Horizontal => ball.velocity[0] = -ball.velocity[0],
+        CollisionAxis::Vertical => ball.velocity[1] = -ball.velocity[1],
+    }
+}
 
 pub struct BallBounceSystem;
 
@@ -30,6 +43,7 @@ impl<'a> System<'a> for BallBounceSystem {
     type SystemData = (
         WriteStorage<'a, Ball>,
         ReadStorage<'a, Transform>,
+        ReadStorage<'a, PiercingBallTimer>,
         ReadStorage<'a, Brick>,
         ReadStorage<'a, Paddle>,
         Read<'a, EntitiesRes>,
@@ -41,6 +55,7 @@ impl<'a> System<'a> for BallBounceSystem {
     fn run(&mut self, (
         mut balls,
         transforms,
+        piercing_ball_timers,
         bricks,
         paddles,
         entities,
@@ -49,10 +64,13 @@ impl<'a> System<'a> for BallBounceSystem {
         sound_kit,
     ): Self::SystemData) {
         for (entity, mut ball, transform) in (&entities, &mut balls, &transforms).join() {
+            let piercing_ball_timer = piercing_ball_timers.get(entity);
+
             Self::handle_brick_collisions(
                 &entity,
                 &mut ball,
                 &transform,
+                &piercing_ball_timer,
                 &transforms,
                 &bricks,
                 &entities,
@@ -114,6 +132,7 @@ impl BallBounceSystem {
         ball_entity: &Entity,
         ball: &mut Ball,
         transform: &Transform,
+        piercing_ball_timer: &Option<&PiercingBallTimer>,
         transforms: &ReadStorage<Transform>,
         bricks: &ReadStorage<Brick>,
         entities: &Read<EntitiesRes>,
@@ -130,7 +149,7 @@ impl BallBounceSystem {
             let x_right = brick_x + 0.5 * brick.width;
             let y_bottom = brick_y - 0.5 * brick.height;
             let y_top = brick_y + 0.5 * brick.height;
-            let mut collided = false;
+            let mut collision_axis = None;
 
             if circle_line_segment_collision(
                 (ball_x, ball_y),
@@ -138,8 +157,7 @@ impl BallBounceSystem {
                 (x_left, y_top),
                 (x_left, y_bottom),
             ) && ball.velocity[0] > 0.0 {
-                ball.velocity[0] = -ball.velocity[0];
-                collided = true;
+                collision_axis = Some(CollisionAxis::Horizontal);
             }
 
             if circle_line_segment_collision(
@@ -148,8 +166,7 @@ impl BallBounceSystem {
                 (x_left, y_top),
                 (x_right, y_top),
             ) && ball.velocity[1] < 0.0 {
-                ball.velocity[1] = -ball.velocity[1];
-                collided = true;
+                collision_axis = Some(CollisionAxis::Vertical);
             }
 
             if circle_line_segment_collision(
@@ -158,8 +175,7 @@ impl BallBounceSystem {
                 (x_left, y_bottom),
                 (x_right, y_bottom),
             ) && ball.velocity[1] > 0.0 {
-                ball.velocity[1] = -ball.velocity[1];
-                collided = true;
+                collision_axis = Some(CollisionAxis::Vertical);
             }
 
             if circle_line_segment_collision(
@@ -168,11 +184,12 @@ impl BallBounceSystem {
                 (x_right, y_top),
                 (x_right, y_bottom),
             ) && ball.velocity[0] < 0.0 {
-                ball.velocity[0] = -ball.velocity[0];
-                collided = true;
+                collision_axis = Some(CollisionAxis::Horizontal);
             }
 
-            if collided {
+            if let Some(axis) = collision_axis {
+                let mut is_piercing_ball = piercing_ball_timer.is_some();
+
                 match brick.kind {
                     BrickKind::Standard => {},
                     BrickKind::FastForward => {
@@ -181,6 +198,14 @@ impl BallBounceSystem {
                     BrickKind::BallSplit => {
                         game_event_channel.single_write(GameEvent::BallSplit(*ball_entity));
                     },
+                    BrickKind::PiercingBall => {
+                        game_event_channel.single_write(GameEvent::PiercingBall(*ball_entity));
+                        is_piercing_ball = true;
+                    },
+                }
+
+                if !is_piercing_ball {
+                    process_collision(ball, axis);
                 }
 
                 sound_kit.play_sound(Sound::Bounce);

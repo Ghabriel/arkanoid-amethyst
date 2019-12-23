@@ -3,7 +3,7 @@ Prefab(
     entities: [
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
+                brick: Brick(kind: PiercingBall, width: 50.0, height: 20.0),
                 transform: (translation: (80.0, 508.0, 0.0)),
             )
         ),
@@ -75,7 +75,7 @@ Prefab(
         ),
         PrefabEntity(
             data: BrickPrefab(
-                brick: Brick(kind: Standard, width: 50.0, height: 20.0),
+                brick: Brick(kind: PiercingBall, width: 50.0, height: 20.0),
                 transform: (translation: (704.0, 508.0, 0.0)),
             )
         ),

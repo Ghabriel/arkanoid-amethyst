@@ -17,6 +17,7 @@ use amethyst::{
 use crate::{
     entities::ball::{Ball, change_direction},
     states::game_state::GameEvent,
+    systems::powerups::piercing_ball_system::PiercingBallTimer,
 };
 
 pub struct BallSplitSystem {
@@ -38,6 +39,7 @@ impl<'a> System<'a> for BallSplitSystem {
         WriteStorage<'a, Ball>,
         WriteStorage<'a, Transform>,
         WriteStorage<'a, SpriteRender>,
+        WriteStorage<'a, PiercingBallTimer>,
         Read<'a, EntitiesRes>,
         Read<'a, EventChannel<GameEvent>>,
     );
@@ -46,6 +48,7 @@ impl<'a> System<'a> for BallSplitSystem {
         mut balls,
         mut transforms,
         mut sprite_renders,
+        mut piercing_ball_timers,
         entities,
         event_channel,
     ): Self::SystemData) {
@@ -79,6 +82,11 @@ impl<'a> System<'a> for BallSplitSystem {
                     balls.insert(new_entity, ball).unwrap();
                     transforms.insert(new_entity, transform).unwrap();
                     sprite_renders.insert(new_entity, sprite_render).unwrap();
+
+                    let piercing_ball_timer = piercing_ball_timers.get(*old_entity).cloned();
+                    if let Some(timer) = piercing_ball_timer {
+                        piercing_ball_timers.insert(new_entity, timer).unwrap();
+                    }
                 },
                 _ => {},
             }

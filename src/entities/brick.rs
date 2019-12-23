@@ -20,6 +20,7 @@ pub enum BrickKind {
     Standard,
     FastForward,
     BallSplit,
+    PiercingBall,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PrefabData)]
