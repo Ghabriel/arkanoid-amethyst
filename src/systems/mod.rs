@@ -4,6 +4,7 @@ mod gameover_system;
 mod level_clear_system;
 mod menu_system;
 mod paddle_movement_system;
+pub mod powerups;
 
 pub use ball_bounce_system::BallBounceSystem;
 pub use ball_movement_system::BallMovementSystem;

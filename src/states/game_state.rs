@@ -20,7 +20,7 @@ use crate::{
     audio::Music,
     config::GameConfig,
     entities::{
-        ball::{Ball, change_direction, change_speed, initialise_ball},
+        ball::initialise_ball,
         brick::{Brick, BrickKind, BrickPrefab},
         paddle::initialise_paddle,
     },
@@ -31,6 +31,10 @@ use crate::{
         GameoverSystem,
         LevelClearSystem,
         PaddleMovementSystem,
+        powerups::{
+            BallSplitSystem,
+            FastForwardSystem,
+        },
     },
 };
 
@@ -99,7 +103,6 @@ pub struct GameState<'a, 'b> {
     pub progress_counter: ProgressCounter,
     pub prefab_handle: Option<Handle<Prefab<BrickPrefab>>>,
     pub attached_sprites_to_bricks: bool,
-    pub game_event_reader: Option<ReaderId<GameEvent>>,
 }
 
 impl GameState<'_, '_> {
@@ -165,63 +168,12 @@ impl GameState<'_, '_> {
             },
         );
     }
-
-    fn handle_game_events(&mut self, world: &mut World) {
-        let events = world
-            .read_resource::<EventChannel<GameEvent>>()
-            .read(self.game_event_reader.as_mut().unwrap())
-            .map(|event| event.clone())
-            .collect::<Vec<_>>();
-
-        for event in events {
-            match event {
-                GameEvent::FastForward => {
-                    let mut ball_storage = world.write_storage::<Ball>();
-
-                    for ball in (&mut ball_storage).join() {
-                        change_speed(ball, |v| v * 1.1);
-                    }
-                }
-                GameEvent::BallSplit(old_entity) => {
-                    let new_entity = initialise_ball(world, self.sprite_sheet.clone().unwrap());
-
-                    let mut ball_storage = world.write_storage::<Ball>();
-                    let mut old_ball = ball_storage
-                        .get_mut(old_entity)
-                        .expect("Failed to retrieve old ball");
-                    let old_velocity = old_ball.velocity.clone();
-                    change_direction(&mut old_ball, |angle| angle + 15f32.to_radians());
-
-                    let mut new_ball = ball_storage
-                        .get_mut(new_entity)
-                        .expect("Failed to retrieve new ball");
-                    new_ball.velocity[0] = old_velocity[0];
-                    new_ball.velocity[1] = old_velocity[1];
-
-                    change_direction(&mut new_ball, |angle| angle - 15f32.to_radians());
-
-                    let mut transform_storage = world.write_storage::<Transform>();
-                    let old_translation = transform_storage
-                        .get(old_entity)
-                        .expect("Failed to retrieve Transform of old ball")
-                        .translation()
-                        .clone();
-                    transform_storage
-                        .get_mut(new_entity)
-                        .expect("Failed to retrieve Transform of new ball")
-                        .set_translation_xyz(
-                            old_translation.x,
-                            old_translation.y,
-                            old_translation.z,
-                        );
-                },
-            }
-        }
-    }
 }
 
 impl SimpleState for GameState<'_, '_> {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
+        data.world.insert(EventChannel::<GameEvent>::new());
+
         let mut dispatcher = DispatcherBuilder::new()
             .with(
                 DjSystem::new(|music: &mut Music| music.in_game.next()),
@@ -232,6 +184,8 @@ impl SimpleState for GameState<'_, '_> {
             .with(BallBounceSystem, "ball_bounce_system", &["ball_movement_system"])
             .with(LevelClearSystem, "level_clear_system", &["ball_bounce_system"])
             .with(GameoverSystem, "gameover_system", &["ball_bounce_system"])
+            .with(BallSplitSystem::new(data.world), "ball_split_system", &["ball_bounce_system"])
+            .with(FastForwardSystem::new(data.world), "fast_forward_system", &["ball_bounce_system"])
             .with(PaddleMovementSystem, "paddle_movement_system", &[])
             .with_pool(data.world.read_resource::<ArcThreadPool>().deref().clone())
             .build();
@@ -241,10 +195,6 @@ impl SimpleState for GameState<'_, '_> {
         init_output(data.world);
         data.world.write_resource::<AudioSink>().set_volume(0.25);
         self.load_level(data.world, 1);
-
-        let mut event_channel = EventChannel::<GameEvent>::new();
-        self.game_event_reader = Some(event_channel.register_reader());
-        data.world.insert(event_channel);
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
@@ -265,8 +215,6 @@ impl SimpleState for GameState<'_, '_> {
             LevelState::Loading => {},
             LevelState::Playing => {},
         }
-
-        self.handle_game_events(data.world);
 
         Trans::None
     }
