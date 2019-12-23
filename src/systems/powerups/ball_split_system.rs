@@ -55,16 +55,47 @@ impl<'a> System<'a> for BallSplitSystem {
         for event in event_channel.read(&mut self.reader) {
             match event {
                 GameEvent::BallSplit(old_entity) => {
+                    let spread_angle = 15f32.to_radians();
+                    let angle_limit = 20f32.to_radians();
+
                     let mut old_ball = balls
                         .get_mut(*old_entity)
                         .expect("Failed to retrieve old ball");
-                    change_direction(&mut old_ball, |angle| angle + 15f32.to_radians());
+                    change_direction(&mut old_ball, |angle| {
+                        let new_angle = angle + spread_angle;
+
+                        if new_angle >= 180f32.to_radians() - angle_limit {
+                            180f32.to_radians() - angle_limit
+                        } else if new_angle <= -180f32.to_radians() + angle_limit {
+                            -180f32.to_radians() + angle_limit
+                        } else if new_angle >= 0. && new_angle < angle_limit {
+                            angle_limit
+                        } else if new_angle <= 0. && new_angle > -angle_limit {
+                            -angle_limit
+                        } else {
+                            new_angle
+                        }
+                    });
 
                     let mut ball = Ball {
                         radius: old_ball.radius,
                         velocity: old_ball.velocity,
                     };
-                    change_direction(&mut ball, |angle| angle - 15f32.to_radians());
+                    change_direction(&mut ball, |angle| {
+                        let new_angle = angle - spread_angle;
+
+                        if new_angle >= 180f32.to_radians() - angle_limit {
+                            180f32.to_radians() - angle_limit
+                        } else if new_angle <= -180f32.to_radians() + angle_limit {
+                            -180f32.to_radians() + angle_limit
+                        } else if new_angle >= 0. && new_angle < angle_limit {
+                            angle_limit
+                        } else if new_angle <= 0. && new_angle > -angle_limit {
+                            -angle_limit
+                        } else {
+                            new_angle
+                        }
+                    });
 
                     let old_translation = transforms
                         .get(*old_entity)
