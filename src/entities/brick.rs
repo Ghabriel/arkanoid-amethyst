@@ -21,6 +21,7 @@ pub enum BrickKind {
     FastForward,
     BallSplit,
     PiercingBall,
+    SlowMode,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PrefabData)]

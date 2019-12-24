@@ -202,6 +202,9 @@ impl BallBounceSystem {
                         game_event_channel.single_write(GameEvent::PiercingBall(*ball_entity));
                         is_piercing_ball = true;
                     },
+                    BrickKind::SlowMode => {
+                        game_event_channel.single_write(GameEvent::SlowMode);
+                    },
                 }
 
                 if !is_piercing_ball {
