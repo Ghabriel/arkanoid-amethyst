@@ -7,11 +7,6 @@ edition = "2018"
 [dependencies]
 serde = "1.0"
 
-# [features]
-# empty = ["amethyst/empty"]
-# metal = ["amethyst/metal"]
-# vulkan = ["amethyst/vulkan"]
-
 [dependencies.amethyst]
 version = "0.13"
-features = ["nightly", "sdl_controller", "vulkan"]
+features = ["sdl_controller", "vulkan"]
