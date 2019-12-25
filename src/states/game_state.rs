@@ -26,7 +26,9 @@ use crate::{
     },
     states::PauseState,
     systems::{
-        BallBounceSystem,
+        BallBrickCollisionSystem,
+        BallPaddleCollisionSystem,
+        BallWallCollisionSystem,
         BallMovementSystem,
         GameoverSystem,
         LevelClearSystem,
@@ -187,13 +189,15 @@ impl SimpleState for GameState<'_, '_> {
                 &[],
             )
             .with(BallMovementSystem, "ball_movement_system", &[])
-            .with(BallBounceSystem, "ball_bounce_system", &["ball_movement_system"])
-            .with(LevelClearSystem, "level_clear_system", &["ball_bounce_system"])
-            .with(GameoverSystem, "gameover_system", &["ball_bounce_system"])
-            .with(BallSplitSystem::new(data.world), "ball_split_system", &["ball_bounce_system"])
-            .with(FastForwardSystem::new(data.world), "fast_forward_system", &["ball_bounce_system"])
-            .with(PiercingBallSystem::new(data.world), "piercing_ball_system", &["ball_bounce_system"])
-            .with(SlowModeSystem::new(data.world), "slow_mode_system", &["ball_bounce_system"])
+            .with(BallBrickCollisionSystem, "ball_brick_system", &["ball_movement_system"])
+            .with(BallPaddleCollisionSystem, "ball_paddle_system", &["ball_movement_system"])
+            .with(BallWallCollisionSystem, "ball_wall_system", &["ball_movement_system"])
+            .with(LevelClearSystem, "level_clear_system", &["ball_brick_system"])
+            .with(GameoverSystem, "gameover_system", &["ball_wall_system"])
+            .with(BallSplitSystem::new(data.world), "ball_split_system", &["ball_brick_system"])
+            .with(FastForwardSystem::new(data.world), "fast_forward_system", &["ball_brick_system"])
+            .with(PiercingBallSystem::new(data.world), "piercing_ball_system", &["ball_brick_system"])
+            .with(SlowModeSystem::new(data.world), "slow_mode_system", &["ball_brick_system"])
             .with(PaddleMovementSystem, "paddle_movement_system", &[])
             .with_pool(data.world.read_resource::<ArcThreadPool>().deref().clone())
             .build();
