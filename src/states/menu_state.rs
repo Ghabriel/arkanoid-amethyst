@@ -2,7 +2,7 @@ use amethyst::{
     assets::Loader,
     audio::{AudioSink, DjSystem, output::init_output},
     core::ArcThreadPool,
-    ecs::prelude::*,
+    ecs::{Dispatcher, DispatcherBuilder, Entity},
     input::InputEvent,
     prelude::*,
     shrev::EventChannel,
