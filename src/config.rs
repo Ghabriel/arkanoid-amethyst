@@ -5,6 +5,7 @@ pub struct GameConfig {
     pub arena: ArenaConfig,
     pub ball: BallConfig,
     pub paddle: PaddleConfig,
+    pub use_joystick_keybindings: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

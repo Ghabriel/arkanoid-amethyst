@@ -12,5 +12,6 @@
         width: 170.0,
         height: 12.0,
         margin: 15.0,
-    )
+    ),
+    use_joystick_keybindings: false,
 )

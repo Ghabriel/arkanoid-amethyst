@@ -1,0 +1,15 @@
+(
+    axes: {
+        "paddle": Controller(
+            controller_id: 0,
+            axis: LeftX,
+            invert: false,
+            dead_zone: 0.2,
+        ),
+    },
+    actions: {
+        "pause": [[Controller(0, Start)], [Controller(0, A)]],
+        "menu_up": [[Controller(0, DPadUp)]],
+        "menu_down": [[Controller(0, DPadDown)]],
+    },
+)

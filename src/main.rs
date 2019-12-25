@@ -29,13 +29,15 @@ fn main() -> amethyst::Result<()> {
     amethyst::start_logger(Default::default());
 
     let app_root = application_root_dir()?;
+    let config_path = app_root.join("config");
 
-    let display_config_path = app_root.join("config").join("display.ron");
-    let keybindings_config_path = app_root.join("config").join("keybindings.ron");
+    let display_config_path = config_path.join("display.ron");
+    let game_config = GameConfig::load(config_path.join("game.ron"));
 
-    let game_config = GameConfig::load(
-        app_root.join("config").join("game.ron")
-    );
+    let keybindings_config_path = match game_config.use_joystick_keybindings {
+        true => config_path.join("keybindings_joystick.ron"),
+        false => config_path.join("keybindings_keyboard.ron"),
+    };
 
     let game_data = GameDataBuilder::default()
         .with_bundle(
