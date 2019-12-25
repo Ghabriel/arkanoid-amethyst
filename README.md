@@ -3,25 +3,16 @@ A simple implementation of Arkanoid using Amethyst.
 
 ## How to run
 
-To run the game, use
+To run the game, first you'll need to have Rust and Vulkan installed. Then, run:
 
 ```
-cargo run --features "vulkan"
+cargo run
 ```
 
-on Windows and Linux, and
+## Using a joystick
+
+If you prefer to use a joystick instead of a keyboard, change the value of `use_joystick_keybindings` to `true` in `config/game.ron`:
 
 ```
-cargo run --features "metal"
+use_joystick_keybindings: true,
 ```
-
-on macOS.
-
-For building without any graphics backend, you can use
-
-```
-cargo run --features "empty"
-```
-
-but be aware that as soon as you need any rendering you won't be able to run your game when using
-the `empty` feature.

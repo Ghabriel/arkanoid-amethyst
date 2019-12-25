@@ -17,6 +17,7 @@ Created by Ghabriel Nunes
 Made using Amethyst Engine
 
 Start Date: 2019-12-10
+Version: 1.0.0 (2019-12-25)
 ";
 
 const QUIT_TEXT: &'static str = "Press any key to return...";
